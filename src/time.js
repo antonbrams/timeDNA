@@ -2,20 +2,22 @@
 import {levels} from './config'
 
 // go through time
-export let iterate = (beg, end, depth, callback) => {
+export let iterate = (beg, end, depth, helix, point) => {
 	let date = null
 	beg = flat(new Date(beg), depth).getTime()
-	for (let t = beg; t < end; t += levels[depth + 1].size) {
+	end = flat(new Date(end), depth).getTime()
+	for (let t = beg; t < end; t += levels[depth].size) {
 		for (let level = 0; level <= depth; level ++) {
-			levels[level].loop = t == levels[level + 1].flat + levels[level + 1].size
+			levels[level].loop = t == levels[level].flat + levels[level].size
 			if (t == beg || levels[level].loop) {
 				date = new Date(t)
 				let flatTime = flat(date, level)
 				// save flat and size to the next level
-				levels[level + 1].flat = flatTime.getTime()
-				levels[level + 1].size = size(flatTime, level)
+				levels[level].flat = flatTime.getTime()
+				levels[level].size = size(flatTime, level)
 			}
-			callback(t, date, level)
+			helix(t, level)
+			if (levels[level].loop) point(date, level)
 		}
 	}
 }
@@ -37,3 +39,19 @@ let next = (time, level) => {
 
 // gets size of the level
 let size = (time, level) => next(time, level) - time
+
+// calculate range
+export let range = (level, length) => {
+	if (level == 0)
+		length = 10
+	else {
+		let remainder = length
+		for (let i = level; i > 0; i --) {
+			remainder = remainder * levels[i].ms / levels[i-1].ms
+			length -= remainder
+			if (remainder < 1) break
+		}
+		length = Math.floor(length)
+	}
+	return length * levels[level].ms / 2
+}

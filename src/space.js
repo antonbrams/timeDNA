@@ -13,14 +13,15 @@ export let calculate = (now, level, t) => {
 		me.position = new Vector3(0,0,(t - now) * me.spread)
 		me.arch		= me.spread
 	} else {
-		me.arch = 2 * Math.PI * me.radius / me.size
+		let pi2 = 2 * Math.PI / prev.size
+		me.arch = pi2 * me.radius
 		me.up = prev.up.clone()
-			.applyAxisAngle(prev.forward, - 2 * Math.PI * (t - me.flat) / me.size)
-		me.forward = new Vector3()
-			.crossVectors(me.up, prev.forward)
-			.applyAxisAngle(me.up, - Math.atan(prev.arch / me.arch))
+			.applyAxisAngle(prev.forward, - pi2 * (t - prev.flat))
 		me.position = me.up.clone()
 			.multiplyScalar(me.radius)
 			.add(prev.position)
+		me.forward = new Vector3()
+			.crossVectors(me.up, prev.forward)
+			.applyAxisAngle(me.up, - Math.atan(prev.arch / me.arch))
 	}
 }

@@ -18,7 +18,7 @@ document.body.appendChild(renderer.domElement)
 
 // camera setup
 scene.background = new Color(0xffffff)
-let dist = 10000
+let dist = 100000
 camera.position.set(dist, dist, dist)
 let controls = new OrbitControls(camera, renderer.domElement)
 import * as point from './point'
@@ -26,22 +26,32 @@ import {levels} from './config'
 import * as time from './time'
 import * as space from './space'
 
-let depth = 3 // goes from year(0) -> seconds(5)
-let now = Date.now()
-let beg = now - levels[depth].range
-let end = now + levels[depth].range
+let points = []
 
-let lookAt = new Vector3()
+let build = (pick, depth) => {
+	// prepare now
+	let prev = Math.max(depth-1, 0)
+	let flat = time.flat(pick, prev).getTime()
+	// get range
+	let ran  = time.range(depth, 200)
+	let now  = pick.getTime()
+	let beg  = now - ran
+	let end  = now + ran
+	// go through time
+	time.iterate(beg, end, depth, (t, level) => {
+		// calculate helix
+		space.calculate(now, level, t)
+		// point camera
+		if (levels[prev].loop && flat == t) 
+			controls.target = levels[prev].position
+	}, (date, level) => {
+		// create timepoints
+		points.push(point.make(scene, levels[level], date))
+	})
+}
 
-let circles = []
-time.iterate(beg, end, depth, (t, date, level) => {
-	space.calculate(now, level, t)
-	if (levels[depth-1].loop)
-		if (time.flat(new Date(now), depth-1).getTime() == t)
-			lookAt = levels[depth-1].position
-	if (levels[level].loop)
-		circles.push(point.make(scene, levels[level], date))
-})
+// goes from year(0) -> seconds(5)
+build(new Date(), 3)
 
 // space origin
 if (0) {
@@ -57,8 +67,7 @@ if (0) {
 // loop function
 let animate = () => {
 	requestAnimationFrame(animate)
-	circles.forEach(circle => circle.lookAt(camera.position))
-	controls.target = lookAt
+	points.forEach(circle => circle.lookAt(camera.position))
 	renderer.render(scene, camera)
 }
 animate()

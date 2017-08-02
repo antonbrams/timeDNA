@@ -1,36 +1,37 @@
 
+/* dynamic hidden params {
+	size, 
+	flat, 
+	loop, 
+	up, 
+	forward, 
+	arch
+}*/
+	
 export let levels = [
-	/* dynamic hidden params {
-		size, 
-		flat, 
-		loop, 
-		up, 
-		forward, 
-		arch
-	}*/
 	{
 		label  : 'FullYear',
 		spread : .000001, 
 		flip   : 1, 
 		scale  : 7, 
-		range  : 130000000000
+		ms     : 31540000000
 	},{
 		label  : 'Month', 
 		radius : 21175, 
-		flip   : 1, 
-		scale  : 1, 
-		range  : 100000000000,
+		flip   : 1,
+		scale  : 1,
+		ms     : 2628000000,
 		format : [
 			'Januar', 'Februar', 'March', 'April', 
 			'Mai', 'June', 'July', 'August', 
 			'September', 'October', 'November', 'December'
-		] 
+		]
 	},{
 		label  : 'Date', 
 		radius : 6652, 
 		flip   : 0, 
 		scale  : .3, 
-		range  : 30000000000,
+		ms     : 86400000,
 		format : [
 			'Sunday', 'Monday', 'Tuesday', 'Wednesday', 
 			'Thursday', 'Friday', 'Saturday'
@@ -38,20 +39,20 @@ export let levels = [
 	},{
 		label  : 'Hours', 
 		radius : 1741, 
-		flip   : 0, 
+		flip   : 0,
 		scale  : .05, 
-		range  : 1300000000
+		ms     : 3600000
 	},{
 		label  : 'Minutes', 
 		radius : 364, 
 		flip   : 0, 
 		scale  : .01, 
-		range  : 23000000
+		ms     : 60000
 	},{
 		label  : 'Seconds', 
 		radius : 95, 
 		flip   : 0, 
 		scale  : .002, 
-		range  : 400000
+		ms	   : 1000
 	}
 ]

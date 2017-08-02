@@ -55,7 +55,7 @@ let text = (level, string) => {
 	ct.fillText(string, 0, cv.height / 2)
 	let texture = new Texture(cv)
 	texture.needsUpdate = true
-	let scale = 30
+	let scale = 25
 	let mesh = new Mesh(
 		new PlaneBufferGeometry(cv.width * scale, cv.height * scale),
 		new MeshBasicMaterial({
