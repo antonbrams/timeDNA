@@ -3,23 +3,28 @@
 import {
 	CircleBufferGeometry, MeshBasicMaterial, Mesh, ArrowHelper,
 	Texture, PlaneBufferGeometry, DoubleSide, CustomBlending,
-	Matrix4, Vector3, Color
+	Matrix4, Vector3, Color, Group
 } from 'three'
 
 import {gimbleToMatrix} from './space'
 import {levels} from './config'
 
-export let make = (scene, level, date, t, pick, depth) => {
+export let make = (level, date, t, pick, depth) => {
 	let me = levels[level]
+	let group = new Group()
 	let color = levels[depth-1].loop?
-		new Color(`hsl(0, 0%,  0%)`):
-		new Color(`hsl(0, 0%, 50%)`)
+		new Color(`hsl(205, 10%, 90%)`):
+		new Color(`hsl(205, 10%, 40%)`)
+	//
+	//
 	// point 
 	let circle = new Mesh(
 		new CircleBufferGeometry(500, 12), 
 		new MeshBasicMaterial({color}))
 	circle.applyMatrix(me.matrix.position)
-	scene.add(circle)
+	group.add(circle)
+	//
+	//
 	// label
 	let cv = document.createElement(`canvas`)
 	let ct = cv.getContext(`2d`)
@@ -65,20 +70,32 @@ export let make = (scene, level, date, t, pick, depth) => {
 		.multiply(new Matrix4().makeScale(25,25,25))
 		.multiply(new Matrix4().setPosition(new Vector3(cv.width/2+40,0,0)))
 	mesh.applyMatrix(orient)
-	scene.add(mesh)
+	group.add(mesh)
 	// debug
 	if (0) {
-		scene.add(new ArrowHelper(
-			level.up, level.position, 
-			level.scale * 5000, 'red'))
-		scene.add(new ArrowHelper(
-			level.forward, level.position, 
-			level.scale * 5000, 'green'))
+		group.add(new ArrowHelper(me.up, me.position, me.scale * 5000, 'red'))
+		group.add(new ArrowHelper(me.forward, me.position, me.scale * 5000, 'green'))
 	}
-	return circle
+	return {
+		group,
+		lookAt (position) {
+			// look to camera
+			circle.lookAt(position)
+			// rotate to camera
+			// let ray   = position.clone().sub(me.position)
+			// let proj  = ray.projectOnPlane(me.forward.clone())
+			// let angle = me.up.angleTo(proj)
+			// let angle = Math.atan2(
+			// 	camera.position.x - obj.position.x, 
+			// 	camera.position.z - obj.position.z)
+			// mesh.matrix = new Matrix4()
+			// mesh.applyMatrix(orient.clone()
+			// 	.multiply(new Matrix4().makeRotationX(angle)))
+		}
+	}
 }
 
 let padding = number => {
 	let string = `${number}`
 	return string.length == 1? `0${string}`: string
-} 
+}

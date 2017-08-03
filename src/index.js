@@ -2,29 +2,24 @@
 import '../graphic/style.sass'
 import {
 	Scene, PerspectiveCamera, WebGLRenderer, 
-	BoxGeometry, Mesh,
-	Color, ArrowHelper, Vector3, Matrix4,
-	MeshBasicMaterial, PlaneGeometry, Texture, DoubleSide, CustomBlending
+	Color, ArrowHelper, Vector3
 } from 'three'
-
+import * as point from './point'
+import {levels} from './config'
+import * as time from './time'
+import * as space from './space'
 import OrbitControls from 'orbit-controls-es6'
 
 // render setup
 let scene    = new Scene()
-let camera   = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 98900390)
+let camera   = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000000)
 let renderer = new WebGLRenderer({antialias : true})
 renderer.setSize(window.innerWidth, window.innerHeight)
 document.body.appendChild(renderer.domElement)
 
 // camera setup
-scene.background = new Color(0xffffff)
-let dist = 100000
-camera.position.set(dist, dist, dist)
+scene.background = new Color(`hsl(205,10%,10%)`)
 let controls = new OrbitControls(camera, renderer.domElement)
-import * as point from './point'
-import {levels} from './config'
-import * as time from './time'
-import * as space from './space'
 
 let points = []
 
@@ -42,11 +37,18 @@ let build = (pick, depth) => {
 		// calculate helix
 		space.calculate(now, level, t)
 		// point camera
-		if (levels[prev].loop && flat == t) 
+		if (levels[prev].loop && flat == t) {
 			controls.target = levels[prev].position.clone()
-	}, (level, date, t) => {
+			let norm = levels[prev].forward.clone()
+				.multiplyScalar(10000)
+				.add(levels[prev].position)
+			camera.position.set(norm.x, norm.y, norm.z)
+		}
+	}, (level, t, date) => {
 		// create timepoints
-		points.push(point.make(scene, level, date, t, flat, depth))
+		let p = point.make(level, date, t, flat, depth)
+		scene.add(p.group)
+		points.push(p)
 	})
 }
 
@@ -54,7 +56,7 @@ let build = (pick, depth) => {
 build(new Date(), 2)
 
 // space origin
-if (1) {
+if (0) {
 	for (let i = 0; i < 3; i ++) {
 		let arrowHelper = new ArrowHelper(
 			new Vector3(i==0,i==1,i==2), 
@@ -67,7 +69,7 @@ if (1) {
 // loop function
 let animate = () => {
 	requestAnimationFrame(animate)
-	points.forEach(circle => circle.lookAt(camera.position))
+	points.forEach(p => p.lookAt(camera.position))
 	renderer.render(scene, camera)
 }
 animate()

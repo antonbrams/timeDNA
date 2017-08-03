@@ -17,7 +17,7 @@ export let iterate = (beg, end, depth, helix, point) => {
 				levels[level].size = size(flatTime, level)
 			}
 			helix(level, t)
-			if (levels[level].loop) point(level, date, t)
+			if (levels[level].loop) point(level, t, date)
 		}
 	}
 }

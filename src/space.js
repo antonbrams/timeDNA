@@ -61,11 +61,11 @@ export let gimbleToMatrix = level => {
 		world.z.clone().dot(local.z), 0,
 		0, 0, 0, 1)
 	let rotateZ = new Matrix4().makeRotationZ(Math.PI * .5)
-	let rotateX = new Matrix4().makeRotationX(-Math.PI * .5)
+	// let rotateX = new Matrix4().makeRotationX(-Math.PI * .5)
 	let rotation = new Matrix4()
 		.multiply(orientation)
 		.multiply(rotateZ)
-		.multiply(rotateX)
+		// .multiply(rotateX)
 	// position and scale
 	let position = new Matrix4()
 		.makeScale(level.scale, level.scale, level.scale)
