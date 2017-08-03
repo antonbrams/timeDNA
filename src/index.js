@@ -1,25 +1,11 @@
 
 import '../graphic/style.sass'
-import {
-	Scene, PerspectiveCamera, WebGLRenderer, 
-	Color, ArrowHelper, Vector3
-} from 'three'
-import * as point from './point'
+import {ArrowHelper, Vector3} from 'three'
+import {controls, scene, camera, loop} from './render'
 import {levels} from './config'
+import * as point from './point'
 import * as time from './time'
 import * as space from './space'
-import OrbitControls from 'orbit-controls-es6'
-
-// render setup
-let scene    = new Scene()
-let camera   = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000000)
-let renderer = new WebGLRenderer({antialias : true})
-renderer.setSize(window.innerWidth, window.innerHeight)
-document.body.appendChild(renderer.domElement)
-
-// camera setup
-scene.background = new Color(`hsl(205,10%,10%)`)
-let controls = new OrbitControls(camera, renderer.domElement)
 
 let points = []
 
@@ -66,11 +52,6 @@ if (0) {
 	}
 }
 
-// loop function
-let animate = () => {
-	requestAnimationFrame(animate)
+loop(() => {
 	points.forEach(p => p.lookAt(camera.position))
-	renderer.render(scene, camera)
-}
-animate()
-
+})

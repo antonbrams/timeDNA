@@ -31,7 +31,6 @@ export let calculate = (now, level, t) => {
 			.crossVectors(me.up, prev.forward)
 			.applyAxisAngle(me.up, - Math.atan(prev.arch / me.arch))
 	}
-	if (me.loop) me.matrix = gimbleToMatrix(me)
 }
 
 // world coordinates

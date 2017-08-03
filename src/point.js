@@ -11,6 +11,8 @@ import {levels} from './config'
 
 export let make = (level, date, t, pick, depth) => {
 	let me = levels[level]
+	
+	let matrix = gimbleToMatrix(me)
 	let group = new Group()
 	let color = levels[depth-1].loop?
 		new Color(`hsl(205, 10%, 90%)`):
@@ -21,7 +23,7 @@ export let make = (level, date, t, pick, depth) => {
 	let circle = new Mesh(
 		new CircleBufferGeometry(500, 12), 
 		new MeshBasicMaterial({color}))
-	circle.applyMatrix(me.matrix.position)
+	circle.applyMatrix(matrix.position)
 	group.add(circle)
 	//
 	//
@@ -63,7 +65,7 @@ export let make = (level, date, t, pick, depth) => {
 		}))
 	// orientation
 	let orient = new Matrix4()
-		.multiply(me.matrix.orientation)
+		.multiply(matrix.orientation)
 	if (level == 0) orient
 		.multiply(new Matrix4().makeRotationY(Math.PI * .5))
 	orient

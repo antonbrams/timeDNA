@@ -18,7 +18,7 @@ export let levels = [
 		ms     : 31540000000
 	},{
 		label  : 'Month', 
-		radius : 21175, 
+		radius : 21175,
 		flip   : 0,
 		scale  : 1,
 		ms     : 2628000000,

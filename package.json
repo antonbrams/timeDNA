@@ -11,9 +11,8 @@
   "author": "antonkluev",
   "license": "ISC",
   "dependencies": {
-    "orbit-controls-es6": "^1.0.9",
     "three": "^0.86.0",
-    "three-device-orientation": "^1.0.3"
+    "vr.three.js": "https://github.com/antonkluev/vr.three.js.git"
   },
   "devDependencies": {
     "babel-core": "^6.25.0",
