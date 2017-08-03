@@ -16,15 +16,15 @@ export let iterate = (beg, end, depth, helix, point) => {
 				levels[level].flat = flatTime.getTime()
 				levels[level].size = size(flatTime, level)
 			}
-			helix(t, level)
-			if (levels[level].loop) point(date, level)
+			helix(level, t)
+			if (levels[level].loop) point(level, date, t)
 		}
 	}
 }
 
 // set timelevel behind threshold to zero
 export let flat = (time, level) => {
-	let out = new Date(0)
+	let out = new Date(0,0,1,0,0,0,0)
 	for (let i = 0; i <= level; i ++)
 		out[`set${levels[i].label}`](time[`get${levels[i].label}`]())
 	return out
@@ -43,7 +43,7 @@ let size = (time, level) => next(time, level) - time
 // calculate range
 export let range = (level, length) => {
 	if (level == 0)
-		length = 10
+		length = 8
 	else {
 		let remainder = length
 		for (let i = level; i > 0; i --) {

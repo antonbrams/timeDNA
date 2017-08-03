@@ -33,28 +33,28 @@ let build = (pick, depth) => {
 	let prev = Math.max(depth-1, 0)
 	let flat = time.flat(pick, prev).getTime()
 	// get range
-	let ran  = time.range(depth, 200)
+	let ran  = time.range(depth, 100)
 	let now  = pick.getTime()
 	let beg  = now - ran
 	let end  = now + ran
 	// go through time
-	time.iterate(beg, end, depth, (t, level) => {
+	time.iterate(beg, end, depth, (level, t) => {
 		// calculate helix
 		space.calculate(now, level, t)
 		// point camera
 		if (levels[prev].loop && flat == t) 
-			controls.target = levels[prev].position
-	}, (date, level) => {
+			controls.target = levels[prev].position.clone()
+	}, (level, date, t) => {
 		// create timepoints
-		points.push(point.make(scene, levels[level], date))
+		points.push(point.make(scene, level, date, t, flat, depth))
 	})
 }
 
 // goes from year(0) -> seconds(5)
-build(new Date(), 3)
+build(new Date(), 2)
 
 // space origin
-if (0) {
+if (1) {
 	for (let i = 0; i < 3; i ++) {
 		let arrowHelper = new ArrowHelper(
 			new Vector3(i==0,i==1,i==2), 
