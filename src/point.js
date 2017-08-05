@@ -9,12 +9,11 @@ import {
 import {gimbleToMatrix} from './space'
 import {levels} from './config'
 
-export let make = (level, date, t, pick, depth) => {
+export let make = (level, date, t, depth) => {
 	let me = levels[level]
-	
 	let matrix = gimbleToMatrix(me)
 	let group = new Group()
-	let color = levels[depth-1].loop?
+	let color = levels[Math.max(depth - 1, 1)].loop?
 		new Color(`hsl(205, 10%, 50%)`):
 		new Color(`hsl(205, 10%, 100%)`)
 	//
@@ -24,7 +23,6 @@ export let make = (level, date, t, pick, depth) => {
 		new CircleBufferGeometry(500, 12), 
 		new MeshBasicMaterial({color}))
 	// circle.geometry.colorsNeedUpdate = true
-	// circle.applyMatrix(matrix.position)
 	circle.applyMatrix(matrix)
 	group.add(circle)
 	//
@@ -68,20 +66,23 @@ export let make = (level, date, t, pick, depth) => {
 	// orientation
 	let orient = new Matrix4()
 		.multiply(matrix)
-	if (level == 0) orient
-		.multiply(new Matrix4().makeRotationY(Math.PI * .5))
-	orient
 		.multiply(new Matrix4().makeScale(25,25,25))
 		.multiply(new Matrix4().setPosition(new Vector3(cv.width/2+40,0,0)))
 	mesh.applyMatrix(orient)
 	group.add(mesh)
 	// debug
-	if (0) {
+	if (1) {
 		group.add(new ArrowHelper(me.up, me.position, me.scale * 5000, 'red'))
 		group.add(new ArrowHelper(me.forward, me.position, me.scale * 5000, 'green'))
 	}
 	return {
-		group,
+		group, level, t,
+		gimble : {
+			up       : me.up,
+			forward  : me.forward,
+			position : me.position,
+			matrix
+		},
 		lookAt (position) {
 			// look to camera
 			circle.lookAt(position)

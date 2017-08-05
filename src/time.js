@@ -2,23 +2,25 @@
 import {levels} from './config'
 
 // go through time
-export let iterate = (beg, end, depth, helix, point) => {
-	let date = null
+export let span = (beg, end, depth, helix, point) => {
 	beg = flat(new Date(beg), depth).getTime()
 	end = flat(new Date(end), depth).getTime()
-	for (let t = beg; t < end; t += levels[depth].size) {
-		for (let level = 0; level <= depth; level ++) {
-			levels[level].loop = t == levels[level].flat + levels[level].size
-			if (t == beg || levels[level].loop) {
-				date = new Date(t)
-				let flatTime = flat(date, level)
-				// save flat and size to the next level
-				levels[level].flat = flatTime.getTime()
-				levels[level].size = size(flatTime, level)
-			}
-			helix(level, t)
-			if (levels[level].loop) point(level, t, date)
+	for (let t = beg; t < end; t += levels[depth].size) 
+		pick(t, depth, helix, point, t == beg)
+}
+
+export let pick = (t, depth, helix, point, init = true) => {
+	let date = null
+	for (let level = 0; level <= depth; level ++) {
+		levels[level].loop = t == levels[level].flat + levels[level].size
+		if (init || levels[level].loop) {
+			date = new Date(t)
+			let flatTime = flat(date, level)
+			levels[level].flat = flatTime.getTime()
+			levels[level].size = size(flatTime, level)
 		}
+		helix(level, t)
+		if (levels[level].loop) point(level, t, date)
 	}
 }
 

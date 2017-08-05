@@ -1,18 +1,17 @@
 
-/* dynamic hidden params {
-	size, 
-	flat, 
-	loop, 
-	up, 
-	forward, 
-	arch,
-	matrix
-}*/
-	
+import {Vector3} from 'three'
+
+export let world = {
+	x : new Vector3(1,0,0),
+	y : new Vector3(0,1,0),
+	z : new Vector3(0,0,1)
+}
+
 export let levels = [
 	{
 		label  : 'FullYear',
-		spread : .000001, 
+		spread : .000001,
+		arch   : .000001,
 		flip   : 0, 
 		scale  : 7, 
 		ms     : 31540000000
@@ -52,8 +51,28 @@ export let levels = [
 	},{
 		label  : 'Seconds', 
 		radius : 95, 
-		flip   : 1, 
+		flip   : 1,
 		scale  : .002, 
 		ms	   : 1000
 	}
 ]
+
+// add dynamic variables
+levels.forEach(level => {
+	let dynamic = {
+	// time
+		size     : 0, // ms
+		flat     : 0, // ms
+		loop     : false, // bool
+	// space
+		up       : world.y, // 3d vector
+		forward  : world.z, // 3d vector
+		position : new Vector3(0,0,0), // 3d vector
+		arch     : 0, // in radians
+	// cache
+		points   : [] // points
+	}
+	for (let i in dynamic) 
+		if (!level[i]) level[i] = dynamic[i]
+})
+

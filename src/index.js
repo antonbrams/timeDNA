@@ -7,67 +7,80 @@ import * as point from './point'
 import * as time from './time'
 import * as space from './space'
 
-let points = []
-
 let build = (pick, depth) => {
-	// prepare now
-	let prev = Math.max(depth - 1, 0)
-	let flat = time.flat(pick, prev).getTime()
-	// get range
-	let now = pick.getTime()
-	let {beg, end} = time.range(now, depth, 100)
-	// go through time
-	time.iterate(beg, end, depth, (level, t) => {
-		// calculate helix
-		space.calculate(now, level, t)
-		// point camera
-		if (levels[prev].loop && flat == t) {
-			controls.target = levels[prev].position.clone()
-			let norm = levels[prev].forward.clone()
-				.multiplyScalar(10000)
-				.add(levels[prev].position)
-			camera.position.set(norm.x, norm.y, norm.z)
-		}
-	}, (level, t, date) => {
-		// create timepoints
-		let p = point.make(level, date, t, flat, depth)
-		scene.add(p.group)
-		points.push(p)
-	})
-}
-
-let pick = new Date(0)
-// goes from year(0) -> seconds(5)
-// build(pick, 2)
-
-
-
-
-
-
-
-
-
-
-
-
-// space origin
-if (1) {
-	for (let i = 0; i < 3; i ++) {
-		let arrowHelper = new ArrowHelper(
-			new Vector3(i==0,i==1,i==2), 
-			new Vector3(0, 0, 0), 100000, 
-			['red', 'green', 'blue'][i])
-		scene.add(arrowHelper)
+	if (levels[depth].points.length == 0) {
+		// prepare now
+		let prev = Math.max(depth - 1, 0)
+		// get range
+		let now = pick.getTime()
+		let {beg, end} = time.range(now, depth, 100)
+		let allowed = []
+		for (let i = 0; i < levels.length; i ++)
+			allowed[i] = levels[i].points.length == 0
+		// go through time
+		time.span(beg, end, depth, (level, t) => {
+			// calculate helix
+			space.calculate(now, level, t)
+		}, (level, t, date) => {
+			// create timepoints
+			if (allowed[level]) {
+				let p = point.make(level, date, t, depth)
+				levels[level].points.push(p)
+				scene.add(p.group)
+			}
+		})
 	}
 }
 
-document.onkeyup = e => {
-	if (e.key == 'w') console.log('test')
-	if (e.key == 's') console.log('test')
+let camCtrl = {
+	target   : new Vector3(),
+	position : new Vector3(),
+	up		 : new Vector3()
+}
+
+let setup = (pick, depth) => {
+	let prev = Math.max(depth - 1, 0)
+	let now  = pick.getTime()
+	let flat = time.flat(pick, prev).getTime()
+	let {beg, end} = time.range(now, depth, 100)
+	levels.forEach((level, i) => {
+		level.points.forEach(point => {
+			// show / hide points
+			point.group.visible = 
+				beg < point.t && point.t < end && 
+				point.level <= depth
+			// point camera
+			if (i == prev && point.t == flat) {
+				camCtrl.target   = point.gimble.position.clone()
+				camCtrl.position = point.gimble.forward.clone()
+					.multiplyScalar(level.scale * 30000)
+					.add(point.gimble.position)
+				camCtrl.up		 = new Vector3()
+					.crossVectors(point.gimble.forward, point.gimble.up)
+			}
+		})
+	})
+}
+
+let pick  = new Date(0)
+let depth = 0 // goes from year(0) -> seconds(5)
+build(pick, depth)
+
+document.addEventListener('keyup', e => {
+	if (e.key == 'w') {
+		depth += depth < levels.length - 1? 1: 0
+		build(pick, depth)
+		setup(pick, depth)
+	}
+	if (e.key == 's') {
+		depth -= depth > 0? 1: 0
+		build(pick, depth)
+		setup(pick, depth)
+	}
+	console.log(depth);
 	if (e.key == 'a') console.log('test')
 	if (e.key == 'd') console.log('test')
-}
+})
 
 // let a = false
 // document.body.onmousemove = e => {
@@ -85,7 +98,25 @@ document.onkeyup = e => {
 // }
 
 loop(() => {
-	points.forEach(p => {
-		p.lookAt(camera.position)
+	levels.forEach(level => {
+		if (level.points.length > 0) 
+			level.points.forEach(p => {
+				p.lookAt(camera.position)
+			})
 	})
+	let speed = .02
+	controls.target
+		.add(camCtrl.target.clone()
+			.sub(controls.target)
+			.multiplyScalar(speed))
+	// let pos = camera.position.clone()
+	// 	.add(camCtrl.position.clone()
+	// 		.sub(camera.position)
+	// 		.multiplyScalar(speed))
+	// camera.position.set(pos.x, pos.y, pos.z)
+	// let up = camera.up.clone()
+	// 	.add(camCtrl.up.clone()
+	// 		.sub(camera.up)
+	// 		.multiplyScalar(speed))
+	// camera.up.set(up.x, up.y, up.z)
 })
