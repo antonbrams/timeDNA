@@ -1,6 +1,6 @@
 
 import {levels, world} from './config'
-import {Vector3, Matrix4} from 'three'
+import {Vector3, Matrix3, Matrix4} from 'three'
 
 // calculate helix
 export let calculate = (now, level, t) => {
@@ -11,17 +11,24 @@ export let calculate = (now, level, t) => {
 	if (level == 0) {
 		me.position.z = t * me.spread
 	} else {
-		let pi2  = 2.0 * Math.PI / prev.size
-		me.arch  = pi2 * me.radius
-		me.up = prev.up.clone()
-			.applyAxisAngle(prev.forward, 
-				- pi2 * (t - prev.flat))
-		me.position = me.up.clone()
+		let radius = prev.up.clone()
+		let gain = 2 * Math.PI / prev.size
+		me.arch = gain * me.radius
+		let rotation = new Matrix4()
+			.makeRotationAxis(prev.forward, - gain * (t - prev.flat))
+		let pitch = new Matrix4()
+			.makeRotationAxis(radius, - Math.atan(prev.arch / me.arch))
+			.multiply(rotation)
+		// create vectors
+		me.up = prev.forward.clone()
+			.applyMatrix4(pitch)
+		me.forward = new Vector3()
+			.crossVectors(radius, prev.forward)			
+			.applyMatrix4(pitch)
+		me.position = radius.clone()
+			.applyMatrix4(rotation)
 			.multiplyScalar(me.radius)
 			.add(prev.position)
-		me.forward = new Vector3()
-			.crossVectors(me.up, prev.forward)
-			.applyAxisAngle(me.up, - Math.atan(prev.arch / me.arch))
 	}
 }
 

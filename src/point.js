@@ -64,14 +64,13 @@ export let make = (level, date, t, depth) => {
 			alphaTest   : 0.1
 		}))
 	// orientation
-	let orient = new Matrix4()
-		.multiply(matrix)
+	let orient = matrix.clone()
 		.multiply(new Matrix4().makeScale(25,25,25))
 		.multiply(new Matrix4().setPosition(new Vector3(cv.width/2+40,0,0)))
 	mesh.applyMatrix(orient)
 	group.add(mesh)
 	// debug
-	if (1) {
+	if (0) {
 		group.add(new ArrowHelper(me.up, me.position, me.scale * 5000, 'red'))
 		group.add(new ArrowHelper(me.forward, me.position, me.scale * 5000, 'green'))
 	}

@@ -44,17 +44,13 @@ let size = (time, level) => next(time, level) - time
 
 // calculate range
 export let range = (now, level, length) => {
-	if (level == 0)
-		length = 8
-	else {
-		let remainder = length
-		for (let i = level; i > 0; i --) {
-			remainder = remainder * levels[i].ms / levels[i-1].ms
-			length -= remainder
-			if (remainder < 1) break
-		}
-		length = Math.floor(length)
+	let remainder = length
+	for (let i = level; i > 0; i --) {
+		remainder = remainder * levels[i].ms / levels[i-1].ms
+		length -= remainder
+		if (remainder < 1) break
 	}
+	length = Math.floor(length)
 	let r = length * levels[level].ms / 2
 	return {
 		beg : now - r, 

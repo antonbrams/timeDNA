@@ -55,8 +55,7 @@ let setup = (pick, depth) => {
 				camCtrl.position = point.gimble.forward.clone()
 					.multiplyScalar(level.scale * 30000)
 					.add(point.gimble.position)
-				camCtrl.up		 = new Vector3()
-					.crossVectors(point.gimble.forward, point.gimble.up)
+				camCtrl.up = point.gimble.up.clone()
 			}
 		})
 	})
