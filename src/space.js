@@ -69,8 +69,5 @@ export let gimbleToMatrix = level => {
 	let position = new Matrix4()
 		.makeScale(level.scale, level.scale, level.scale)
 		.setPosition(level.position)
-	return {
-		position, 
-		orientation : position.clone().multiply(rotation)
-	}
+	return position.clone().multiply(rotation)
 }

@@ -41,7 +41,7 @@ let next = (time, level) => {
 let size = (time, level) => next(time, level) - time
 
 // calculate range
-export let range = (level, length) => {
+export let range = (now, level, length) => {
 	if (level == 0)
 		length = 8
 	else {
@@ -53,5 +53,9 @@ export let range = (level, length) => {
 		}
 		length = Math.floor(length)
 	}
-	return length * levels[level].ms / 2
+	let r = length * levels[level].ms / 2
+	return {
+		beg : now - r, 
+		end : now + r
+	}
 }

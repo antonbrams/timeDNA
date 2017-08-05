@@ -15,15 +15,17 @@ export let make = (level, date, t, pick, depth) => {
 	let matrix = gimbleToMatrix(me)
 	let group = new Group()
 	let color = levels[depth-1].loop?
-		new Color(`hsl(205, 10%, 90%)`):
-		new Color(`hsl(205, 10%, 40%)`)
+		new Color(`hsl(205, 10%, 50%)`):
+		new Color(`hsl(205, 10%, 100%)`)
 	//
 	//
 	// point 
 	let circle = new Mesh(
 		new CircleBufferGeometry(500, 12), 
 		new MeshBasicMaterial({color}))
-	circle.applyMatrix(matrix.position)
+	// circle.geometry.colorsNeedUpdate = true
+	// circle.applyMatrix(matrix.position)
+	circle.applyMatrix(matrix)
 	group.add(circle)
 	//
 	//
@@ -65,7 +67,7 @@ export let make = (level, date, t, pick, depth) => {
 		}))
 	// orientation
 	let orient = new Matrix4()
-		.multiply(matrix.orientation)
+		.multiply(matrix)
 	if (level == 0) orient
 		.multiply(new Matrix4().makeRotationY(Math.PI * .5))
 	orient
@@ -93,6 +95,10 @@ export let make = (level, date, t, pick, depth) => {
 			// mesh.matrix = new Matrix4()
 			// mesh.applyMatrix(orient.clone()
 			// 	.multiply(new Matrix4().makeRotationX(angle)))
+		},
+		blend (a) {
+			// circle.material.color.set(
+			// 	color.lerp(new Color(`rgb(255,0,0)`, a)))
 		}
 	}
 }
