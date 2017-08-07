@@ -1,6 +1,10 @@
 
 import {Vector3} from 'three'
 
+export let params = {
+	range : 200
+}
+
 export let world = {
 	x : new Vector3(1,0,0),
 	y : new Vector3(0,1,0),
@@ -67,10 +71,10 @@ levels.forEach(level => {
 		date : new Date(0), // date
 		loop : false, // bool
 		// space
-		x	 : world.x,
-		y    : world.y, // 3d vector
-		z    : world.z, // 3d vector
-		p    : new Vector3(0,0,0), // 3d vector
+		x	 : world.x, // left vector
+		y    : world.y, // up vector
+		z    : world.z, // forward vector
+		p    : new Vector3(0,0,0), // position
 		arch : 0, // in radians
 	// cache
 		points : [] // points

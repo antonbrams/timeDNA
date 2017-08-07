@@ -1,100 +1,38 @@
 
 import '../graphic/style.sass'
-import {ArrowHelper, Vector3} from 'three'
+import {ArrowHelper, Vector3, Matrix4} from 'three'
 import {controls, scene, camera, loop} from './render'
 import {levels, world} from './config'
 import * as point from './point'
 import * as time from './time'
 import * as space from './space'
+import * as travel from './travel'
 
-let makeOne = (depth, dir) => {
-	let prev = Math.max(depth-1, 0)
-	let {beg} = levels[depth].range
-	let preBeg = time.prev(new Date(beg), prev).getTime()
-	
-	// levels.forEach(level => {
-	// 	
-	// })
-	
-	time.span(preBeg, beg + 1, depth, (level, t) => {
-		// calculate helix
-		space.calculate(level, t)
-	}, (level, t, date) => {
-		// create timepoints
-		let p = point.make(level, date, t)
-		levels[level].points.push(p)
-		scene.add(p.group)
-	})
-}
-
-let build = (pick, depth) => {
-	if (levels[depth].points.length == 0) {
-		let {beg, end} = 
-		levels[depth].range = time.range(pick.getTime(), depth, 100)
-		let allowed = []
-		for (let i = 0; i < levels.length; i ++)
-			allowed[i] = levels[i].points.length == 0
-		// go through time
-		time.span(beg, end, depth, level => {
-			// calculate helix
-			space.calculate(level)
-		}, level => {
-			// create timepoints
-			if (allowed[level]) {
-				let p = point.make(level)
-				levels[level].points.push(p)
-				scene.add(p.group)
-			}
-		})
-	}
-}
-
-let camCtrl = {
+export let camCtrl = {
 	target   : new Vector3(),
 	position : new Vector3(),
 	up		 : new Vector3()
 }
 
-let setup = (pick, depth) => {
-	let prev = Math.max(depth - 1, 0)
-	let flat = time.flat(pick, prev).getTime()
-	let {beg, end} = time.range(pick.getTime(), depth, 100)
-	levels.forEach((level, i) => {
-		level.points.forEach(point => {
-			// show / hide points
-			point.group.visible = 
-				beg < point.timestamp.time && point.timestamp.time < end && 
-				point.level <= depth
-			// point camera
-			if (i == prev && point.timestamp.time == flat) {
-				camCtrl.up       = point.gimble.y.clone()
-				camCtrl.target   = point.gimble.p.clone()
-				camCtrl.position = point.gimble.z.clone()
-					.multiplyScalar(level.scale * 10000)
-					.add(point.gimble.p)
-			}
-		})
-	})
-}
-
-let pick  = new Date(0)
+let pick  = new Date()
 let depth = 0 // goes from year(0) -> seconds(5)
-build(pick, depth)
+travel.doDepth(pick, depth)
 
 let state = true
 document.addEventListener('keyup', e => {
 	if (e.key == 'w') {
 		depth += depth < levels.length - 1? 1: 0
-		build(pick, depth)
-		setup(pick, depth)
+		travel.doDepth(pick, depth)
 	} else if (e.key == 's') {
 		depth -= depth > 0? 1: 0
-		build(pick, depth)
-		setup(pick, depth)
-	} else if (e.key == 'a') {
-		makeOne(depth, 'past')
-	} else if (e.key == 'd') {
-		makeOne(depth, 'future')
+		travel.doDepth(pick, depth)
+	} else if (e.key == 'a' || e.key == 'd') {
+		let prev = Math.max(depth-1, 0)
+		let flat = time.flat(pick, prev)
+		let next = time[e.key == 'd'? 'next':'prev'](flat, prev)
+		travel.doShift(flat, next, depth)
+		pick = next
+		// makeOne(depth, 'past')
 	}
 	// debug helix
 	if (e.key == 'D') {
@@ -107,21 +45,6 @@ document.addEventListener('keyup', e => {
 		state = !state
 	}
 })
-
-// let a = false
-// document.body.onmousemove = e => {
-// 	a = e.clientX / window.innerWidth
-// }
-// document.body.onclick = e => {
-// 	// points.forEach(p => {
-// 	// 	scene.remove(p.group)
-// 	// })
-// 	// build(new Date(), 2)
-// 	points.forEach(p => {
-// 		p.group.visible = a
-// 	})
-// 	a = !a
-// }
 
 loop(() => {
 	// automatic camera movement
@@ -144,10 +67,10 @@ loop(() => {
 	}
 	// calculate camera local axis
 	let local = {}
-	for (let i in world) local[i] = world[i].clone()
-	local.x.applyQuaternion(camera.quaternion)
-	local.y.applyQuaternion(camera.quaternion)
-	local.z.applyQuaternion(camera.quaternion)
+	for (let i in world)
+		local[i] = world[i].clone().applyQuaternion(camera.quaternion)
+		// local[i] = world[i].clone().applyMatrix4(camera.matrixWorld)
+		// m.multiplyVector3(local[i])
 	// bildboard
 	levels.forEach(level => {
 		if (level.points.length > 0) 

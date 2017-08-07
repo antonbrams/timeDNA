@@ -19,8 +19,6 @@ export let make = level => {
 	// 	new Color(`hsl(205, 10%, 50%)`):
 	// 	new Color(`hsl(205, 10%, 100%)`)
 	let color = new Color(`hsl(205, 10%, 50%)`)
-	//
-	//
 	// point 
 	let circle = new Mesh(
 		new CircleBufferGeometry(300, 12), 
@@ -28,50 +26,21 @@ export let make = level => {
 	// circle.geometry.colorsNeedUpdate = true
 	circle.applyMatrix(m)
 	group.add(circle)
-	//
-	//
 	// label
-	let cv = document.createElement(`canvas`)
-	let ct = cv.getContext(`2d`)
-	cv.height = 32
-	cv.width  = 256
-	if (0) {
-		ct.fillStyle = `silver`
-		ct.fillRect(0, 0, cv.width, cv.height)}
-	ct.font         = `20pt Helvetica`
-	ct.textAlign    = `left`
-	ct.textBaseline = `middle`
-	ct.fillStyle    = `#${color.getHexString()}`
-	// text
-	ct.fillText(format(me, level), 0, cv.height / 2)
-	// texture
-	let texture = new Texture(cv)
-	texture.needsUpdate = true
-	// mesh
-	let mesh = new Mesh(
-		new PlaneBufferGeometry(cv.width, cv.height),
-		new MeshBasicMaterial({
-			map         : texture,
-			side        : DoubleSide,
-			transparent : true,
-			blending    : CustomBlending,
-			alphaTest   : 0.1
-		}))
+	let {mesh, canvas : cv} = label(me, level, color)
 	// orientation
 	let orient = m.clone()
 		.multiply(new Matrix4().makeScale(25,25,25))
 		.multiply(new Matrix4().setPosition(new Vector3(cv.width/2+30,0,0)))
-	mesh.applyMatrix(orient)
 	group.add(mesh)
+	// TODO: https://threejs.org/docs/#api/geometries/PlaneBufferGeometry
 	let helpers = [
 		new ArrowHelper(me.y, me.p, me.scale * 5000, 'red'),
 		new ArrowHelper(me.z, me.p, me.scale * 5000, 'green')]
-		
 	// let cylinder = new Mesh(
 	// 	new SphereBufferGeometry(100, 32, 32),
 	// 	new MeshBasicMaterial({color : 'red'}))
 	// group.add(cylinder)
-	
 	return {
 		group, level, 
 		gimble : {
@@ -88,6 +57,12 @@ export let make = level => {
 		lookAt (position, local) {
 			// look to camera
 			circle.lookAt(position)
+			// make camera
+			// let local = {
+			// 	y : new Vector3(0,1,0).applyQuaternion(camera.quaternion),
+			// 	z : me.p.clone().sub(position).normalize()
+			// }
+			// local.x = new Vector3().multiplyScalar(local.y, local.z)
 			// rotate to camera
 			let m = rotationsMatrix(local, me).elements
 			let angle = Math.atan2(m[9], m[10])
@@ -122,4 +97,34 @@ let format = (me, level) => {
 			level > 2? padding(number): number
 	}
 	return label
+}
+
+let label = (me, level, color) => {
+	let cv = document.createElement(`canvas`)
+	let ct = cv.getContext(`2d`)
+	cv.height = 32
+	cv.width  = 256
+	if (0) {
+		ct.fillStyle = `silver`
+		ct.fillRect(0, 0, cv.width, cv.height)}
+	ct.font         = `20pt Helvetica`
+	ct.textAlign    = `left`
+	ct.textBaseline = `middle`
+	ct.fillStyle    = `#${color.getHexString()}`
+	// text
+	ct.fillText(format(me, level), 0, cv.height / 2)
+	// texture
+	let texture = new Texture(cv)
+	texture.needsUpdate = true
+	// mesh
+	let mesh = new Mesh(
+		new PlaneBufferGeometry(cv.width, cv.height),
+		new MeshBasicMaterial({
+			map         : texture,
+			side        : DoubleSide,
+			transparent : true,
+			blending    : CustomBlending,
+			alphaTest   : 0.1
+		}))
+	return {mesh, canvas : cv}
 }

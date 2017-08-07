@@ -3,7 +3,7 @@ import {levels, world} from './config'
 import {Vector3, Matrix4} from 'three'
 
 // calculate helix
-export let calculate = level => {
+export let buildHelix = level => {
 	// levels
 	let me = levels[level]
 	// calculate gimbles
@@ -43,11 +43,7 @@ export let rotationsMatrix = (l, w) => {
 	return m
 }
 
-export let gimbleToMatrix = level => {
-	console.log(level);
-	
-	return new Matrix4()
-		.makeScale(level.scale, level.scale, level.scale)
-		.setPosition(level.p)
-		.multiply(rotationsMatrix(level, world))
-}
+export let gimbleToMatrix = level => new Matrix4()
+	.makeScale(level.scale, level.scale, level.scale)
+	.setPosition(level.p)
+	.multiply(rotationsMatrix(level, world))
