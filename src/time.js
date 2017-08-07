@@ -3,8 +3,6 @@ import {levels} from './config'
 
 // go through time
 export let span = (beg, end, depth, helix, point) => {
-	beg = flat(new Date(beg), depth).getTime()
-	end = flat(new Date(end), depth).getTime()
 	for (let t = beg; t < end; t += levels[depth].size) 
 		pick(t, depth, helix, point, t == beg)
 }
@@ -33,14 +31,17 @@ export let flat = (time, level) => {
 }
 
 // get timelevel + 1
-let next = (time, level) => {
+let offset = (time, level, dir) => {
 	let out = new Date(time.getTime())
-	out[`set${levels[level].label}`](out[`get${levels[level].label}`]()+1)
+	out[`set${levels[level].label}`](out[`get${levels[level].label}`]() + dir)
 	return out
 }
 
+export let prev = (time, level) => offset(time, level, -1)
+export let next = (time, level) => offset(time, level, +1)
+
 // gets size of the level
-let size = (time, level) => next(time, level) - time
+export let size = (time, level) => next(time, level) - time
 
 // calculate range
 export let range = (now, level, length) => {
@@ -53,7 +54,7 @@ export let range = (now, level, length) => {
 	length = Math.floor(length)
 	let r = length * levels[level].ms / 2
 	return {
-		beg : now - r, 
-		end : now + r
+		beg : flat(new Date(now - r), level).getTime(), 
+		end : flat(new Date(now + r), level).getTime()
 	}
 }
