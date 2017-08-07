@@ -61,16 +61,17 @@ export let levels = [
 levels.forEach(level => {
 	let dynamic = {
 	// time
-		size     : 0, // ms
-		flat     : 0, // ms
-		loop     : false, // bool
+		size   : 0, // ms
+		flat   : 0, // ms
+		loop   : false, // bool
 	// space
-		up       : world.y, // 3d vector
-		forward  : world.z, // 3d vector
-		position : new Vector3(0,0,0), // 3d vector
-		arch     : 0, // in radians
+		x	   : world.x,
+		y      : world.y, // 3d vector
+		z      : world.z, // 3d vector
+		p      : new Vector3(0,0,0), // 3d vector
+		arch   : 0, // in radians
 	// cache
-		points   : [] // points
+		points : [] // points
 	}
 	for (let i in dynamic) 
 		if (!level[i]) level[i] = dynamic[i]

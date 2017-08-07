@@ -67,11 +67,11 @@ let setup = (pick, depth) => {
 				point.level <= depth
 			// point camera
 			if (i == prev && point.t == flat) {
-				camCtrl.up       = point.gimble.up.clone()
-				camCtrl.target   = point.gimble.position.clone()
-				camCtrl.position = point.gimble.forward.clone()
+				camCtrl.up       = point.gimble.y.clone()
+				camCtrl.target   = point.gimble.p.clone()
+				camCtrl.position = point.gimble.z.clone()
 					.multiplyScalar(level.scale * 10000)
-					.add(point.gimble.position)
+					.add(point.gimble.p)
 			}
 		})
 	})
@@ -130,7 +130,7 @@ loop(() => {
 		.add(camCtrl.target.clone()
 			.sub(controls.target)
 			.multiplyScalar(speed))
-	if (0) {
+	if (1) {
 		let pos = camera.position.clone()
 			.add(camCtrl.position.clone()
 				.sub(camera.position)

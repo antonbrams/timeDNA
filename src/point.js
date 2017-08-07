@@ -13,10 +13,11 @@ import {levels} from './config'
 export let make = (level, date, t) => {
 	let me = levels[level]
 	let gimble = {
-		up       : me.up.clone(),
-		forward  : me.forward.clone(),
-		position : me.position.clone(),
-		matrix   : gimbleToMatrix(me)
+		x : me.x.clone(),
+		y : me.y.clone(),
+		z : me.z.clone(),
+		p : me.p.clone(),
+		m : gimbleToMatrix(me)
 	}
 	let group = new Group()
 	// let color = levels[Math.max(depth - 1, 1)].loop?
@@ -30,7 +31,7 @@ export let make = (level, date, t) => {
 		new CircleBufferGeometry(300, 12), 
 		new MeshBasicMaterial({color}))
 	// circle.geometry.colorsNeedUpdate = true
-	circle.applyMatrix(gimble.matrix)
+	circle.applyMatrix(gimble.m)
 	group.add(circle)
 	//
 	//
@@ -38,7 +39,7 @@ export let make = (level, date, t) => {
 	let cv = document.createElement(`canvas`)
 	let ct = cv.getContext(`2d`)
 	cv.height = 32
-	cv.width  = 258
+	cv.width  = 256
 	if (0) {
 		ct.fillStyle = `silver`
 		ct.fillRect(0, 0, cv.width, cv.height)}
@@ -71,14 +72,14 @@ export let make = (level, date, t) => {
 			alphaTest   : 0.1
 		}))
 	// orientation
-	let orient = gimble.matrix.clone()
+	let orient = gimble.m.clone()
 		.multiply(new Matrix4().makeScale(25,25,25))
 		.multiply(new Matrix4().setPosition(new Vector3(cv.width/2+30,0,0)))
 	mesh.applyMatrix(orient)
 	group.add(mesh)
 	let helpers = [
-		new ArrowHelper(gimble.up, gimble.position, me.scale * 5000, 'red'),
-		new ArrowHelper(gimble.forward, gimble.position, me.scale * 5000, 'green')]
+		new ArrowHelper(gimble.y, gimble.p, me.scale * 5000, 'red'),
+		new ArrowHelper(gimble.z, gimble.p, me.scale * 5000, 'green')]
 		
 	// let cylinder = new Mesh(
 	// 	new SphereBufferGeometry(100, 32, 32),
@@ -91,38 +92,11 @@ export let make = (level, date, t) => {
 			// look to camera
 			circle.lookAt(position)
 			// rotate to camera
-			let world = vectorsToGimble(gimble.forward, gimble.up)
-			let m = rotationsMatrix(local, world).elements
+			let m = rotationsMatrix(local, gimble).elements
 			let angle = Math.atan2(m[9], m[10])
-			// console.log(world.x);
 			mesh.matrix = new Matrix4()
 			mesh.applyMatrix(orient.clone()
 				.multiply(new Matrix4().makeRotationX(-angle)))
-			
-			
-			// let proj = position.clone().sub(gimble.position)
-			// 	.projectOnPlane(new Vector3()
-			// 		.crossVectors(gimble.up, gimble.forward))
-			// 	.normalize()
-			// 	.multiplyScalar(1000)
-			// let vec = position.clone().sub(gimble.position)
-			// let norm = vec.clone().projectOnVector(new Vector3()
-			// 	.crossVectors(gimble.up, gimble.forward))
-			// let proj = vec.clone().sub(norm)
-			// 	.normalize()
-			// 	.multiplyScalar(1000)
-			// 
-			// 
-			// let angle = Math.atan2(
-			// 	gimble.forward.z*proj.y - gimble.forward.y*proj.z, // dot
-			// 	gimble.forward.z*proj.z + gimble.forward.y*proj.y) // det
-			// mesh.matrix = new Matrix4()
-			// mesh.applyMatrix(orient.clone()
-			// 	.multiply(new Matrix4().makeRotationX(-angle)))
-			
-			// cylinder.matrix = new Matrix4()
-			// cylinder.applyMatrix(gimble.matrix.clone()
-			// 	.multiply(new Matrix4().setPosition(norm)))
 		},
 		blend (a) {
 			// circle.material.color.set(

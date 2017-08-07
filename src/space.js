@@ -1,6 +1,6 @@
 
 import {levels, world} from './config'
-import {Vector3, Matrix3, Matrix4} from 'three'
+import {Vector3, Matrix4} from 'three'
 
 // calculate helix
 export let calculate = (level, t) => {
@@ -8,35 +8,36 @@ export let calculate = (level, t) => {
 	let me = levels[level]
 	// calculate gimbles
 	if (level == 0)
-		me.position.z = t * me.spread
+		me.p.z = t * me.spread
 	else {
 		// gain
 		let prev = levels[level - 1]
 		let gain = 2 * Math.PI / prev.size
 		me.arch  = gain * me.radius
 		// rotation
-		let r = new Matrix4().makeRotationAxis(prev.forward, -gain*(t-prev.flat))
-		let g = new Matrix4().makeRotationAxis(prev.up, -Math.atan(prev.arch/me.arch))
+		let r = new Matrix4().makeRotationAxis(prev.z, -gain*(t-prev.flat))
+		let g = new Matrix4().makeRotationAxis(prev.y, -Math.atan(prev.arch/me.arch))
 		// gimble vectors
-		me.up = prev.forward.clone()
+		me.y = prev.z.clone()
 			.applyMatrix4(g)
 			.applyMatrix4(r)
-		me.forward = new Vector3()
-			.crossVectors(prev.up, prev.forward)
+		me.z = new Vector3()
+			.crossVectors(prev.y, prev.z)
 			.applyMatrix4(g)
 			.applyMatrix4(r)
-		me.position = prev.up.clone()
+		me.p = prev.y.clone()
 			.applyMatrix4(r)
 			.multiplyScalar(me.radius)
-			.add(prev.position)
+			.add(prev.p)
+		me.x = new Vector3().crossVectors(me.y, me.z)
 	}
 }
 
-export let vectorsToGimble = (forward, up) => {
+export let vectorsToGimble = (z, y) => {
 	return {
-		x : new Vector3().crossVectors(up, forward),
-		y : up.clone(),
-		z : forward.clone()}
+		x : new Vector3().crossVectors(y, z),
+		y : y.clone(),
+		z : z.clone()}
 } 
 
 export let rotationsMatrix = (l, w) => {
@@ -51,7 +52,6 @@ export let rotationsMatrix = (l, w) => {
 export let gimbleToMatrix = level => {
 	return new Matrix4()
 		.makeScale(level.scale, level.scale, level.scale)
-		.setPosition(level.position)
-		.multiply(rotationsMatrix(
-			vectorsToGimble(level.forward, level.up), world))
+		.setPosition(level.p)
+		.multiply(rotationsMatrix(level, world))
 }
