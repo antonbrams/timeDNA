@@ -10,15 +10,10 @@ import {
 import {gimbleToMatrix, rotationsMatrix, vectorsToGimble} from './space'
 import {levels} from './config'
 
-export let make = (level, date, t) => {
+export let make = level => {
 	let me = levels[level]
-	let gimble = {
-		x : me.x.clone(),
-		y : me.y.clone(),
-		z : me.z.clone(),
-		p : me.p.clone(),
-		m : gimbleToMatrix(me)
-	}
+	me.x = new Vector3().crossVectors(me.y, me.z)
+	let m = gimbleToMatrix(me)
 	let group = new Group()
 	// let color = levels[Math.max(depth - 1, 1)].loop?
 	// 	new Color(`hsl(205, 10%, 50%)`):
@@ -31,7 +26,7 @@ export let make = (level, date, t) => {
 		new CircleBufferGeometry(300, 12), 
 		new MeshBasicMaterial({color}))
 	// circle.geometry.colorsNeedUpdate = true
-	circle.applyMatrix(gimble.m)
+	circle.applyMatrix(m)
 	group.add(circle)
 	//
 	//
@@ -48,16 +43,7 @@ export let make = (level, date, t) => {
 	ct.textBaseline = `middle`
 	ct.fillStyle    = `#${color.getHexString()}`
 	// text
-	let label = ''
-	if (me.label == 'Date') {
-		label = `${date.getDate()} ${me.format[date.getDay()]}`
-	} else {
-		let number = date[`get${me.label}`]()
-		label = 
-			me.format? me.format[number]: 
-			level > 2? padding(number): number
-	}
-	ct.fillText(label, 0, cv.height / 2)
+	ct.fillText(format(me, level), 0, cv.height / 2)
 	// texture
 	let texture = new Texture(cv)
 	texture.needsUpdate = true
@@ -72,14 +58,14 @@ export let make = (level, date, t) => {
 			alphaTest   : 0.1
 		}))
 	// orientation
-	let orient = gimble.m.clone()
+	let orient = m.clone()
 		.multiply(new Matrix4().makeScale(25,25,25))
 		.multiply(new Matrix4().setPosition(new Vector3(cv.width/2+30,0,0)))
 	mesh.applyMatrix(orient)
 	group.add(mesh)
 	let helpers = [
-		new ArrowHelper(gimble.y, gimble.p, me.scale * 5000, 'red'),
-		new ArrowHelper(gimble.z, gimble.p, me.scale * 5000, 'green')]
+		new ArrowHelper(me.y, me.p, me.scale * 5000, 'red'),
+		new ArrowHelper(me.z, me.p, me.scale * 5000, 'green')]
 		
 	// let cylinder = new Mesh(
 	// 	new SphereBufferGeometry(100, 32, 32),
@@ -87,12 +73,23 @@ export let make = (level, date, t) => {
 	// group.add(cylinder)
 	
 	return {
-		group, level, t, gimble,
+		group, level, 
+		gimble : {
+			x : me.x.clone(),
+			y : me.y.clone(),
+			z : me.z.clone(),
+			p : me.p.clone(), 
+			m
+		},
+		timestamp : {
+			time : me.time,
+			date : me.date
+		},
 		lookAt (position, local) {
 			// look to camera
 			circle.lookAt(position)
 			// rotate to camera
-			let m = rotationsMatrix(local, gimble).elements
+			let m = rotationsMatrix(local, me).elements
 			let angle = Math.atan2(m[9], m[10])
 			mesh.matrix = new Matrix4()
 			mesh.applyMatrix(orient.clone()
@@ -112,4 +109,17 @@ export let make = (level, date, t) => {
 let padding = number => {
 	let string = `${number}`
 	return string.length == 1? `0${string}`: string
+}
+
+let format = (me, level) => {
+	let label = ''
+	if (me.label == 'Date') {
+		label = `${me.date.getDate()} ${me.format[me.date.getDay()]}`
+	} else {
+		let number = me.date[`get${me.label}`]()
+		label = 
+			me.format? me.format[number]: 
+			level > 2? padding(number): number
+	}
+	return label
 }

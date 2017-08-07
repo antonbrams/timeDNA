@@ -60,16 +60,18 @@ export let levels = [
 // add dynamic variables
 levels.forEach(level => {
 	let dynamic = {
-	// time
-		size   : 0, // ms
-		flat   : 0, // ms
-		loop   : false, // bool
-	// space
-		x	   : world.x,
-		y      : world.y, // 3d vector
-		z      : world.z, // 3d vector
-		p      : new Vector3(0,0,0), // 3d vector
-		arch   : 0, // in radians
+		// time
+		size : 0, // ms
+		flat : 0, // ms
+		time : 0, // ms
+		date : new Date(0), // date
+		loop : false, // bool
+		// space
+		x	 : world.x,
+		y    : world.y, // 3d vector
+		z    : world.z, // 3d vector
+		p    : new Vector3(0,0,0), // 3d vector
+		arch : 0, // in radians
 	// cache
 		points : [] // points
 	}

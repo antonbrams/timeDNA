@@ -10,15 +10,17 @@ export let span = (beg, end, depth, helix, point) => {
 export let pick = (t, depth, helix, point, init = true) => {
 	let date = null
 	for (let level = 0; level <= depth; level ++) {
+		levels[level].time = t
 		levels[level].loop = t == levels[level].flat + levels[level].size
 		if (init || levels[level].loop) {
 			date = new Date(t)
+			levels[level].date = date
 			let flatTime = flat(date, level)
 			levels[level].flat = flatTime.getTime()
 			levels[level].size = size(flatTime, level)
 		}
-		helix(level, t)
-		if (levels[level].loop) point(level, t, date)
+		helix(level)
+		if (levels[level].loop) point(level)
 	}
 }
 

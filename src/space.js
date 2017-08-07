@@ -3,20 +3,22 @@ import {levels, world} from './config'
 import {Vector3, Matrix4} from 'three'
 
 // calculate helix
-export let calculate = (level, t) => {
+export let calculate = level => {
 	// levels
 	let me = levels[level]
 	// calculate gimbles
 	if (level == 0)
-		me.p.z = t * me.spread
+		me.p.z = me.time * me.spread
 	else {
 		// gain
 		let prev = levels[level - 1]
 		let gain = 2 * Math.PI / prev.size
 		me.arch  = gain * me.radius
 		// rotation
-		let r = new Matrix4().makeRotationAxis(prev.z, -gain*(t-prev.flat))
-		let g = new Matrix4().makeRotationAxis(prev.y, -Math.atan(prev.arch/me.arch))
+		let r = new Matrix4()
+			.makeRotationAxis(prev.z, - gain * (me.time - prev.flat))
+		let g = new Matrix4()
+			.makeRotationAxis(prev.y, - Math.atan(prev.arch / me.arch))
 		// gimble vectors
 		me.y = prev.z.clone()
 			.applyMatrix4(g)
@@ -29,16 +31,8 @@ export let calculate = (level, t) => {
 			.applyMatrix4(r)
 			.multiplyScalar(me.radius)
 			.add(prev.p)
-		me.x = new Vector3().crossVectors(me.y, me.z)
 	}
 }
-
-export let vectorsToGimble = (z, y) => {
-	return {
-		x : new Vector3().crossVectors(y, z),
-		y : y.clone(),
-		z : z.clone()}
-} 
 
 export let rotationsMatrix = (l, w) => {
 	let m = new Matrix4(); m.set(
@@ -50,6 +44,8 @@ export let rotationsMatrix = (l, w) => {
 }
 
 export let gimbleToMatrix = level => {
+	console.log(level);
+	
 	return new Matrix4()
 		.makeScale(level.scale, level.scale, level.scale)
 		.setPosition(level.p)

@@ -35,13 +35,13 @@ let build = (pick, depth) => {
 		for (let i = 0; i < levels.length; i ++)
 			allowed[i] = levels[i].points.length == 0
 		// go through time
-		time.span(beg, end, depth, (level, t) => {
+		time.span(beg, end, depth, level => {
 			// calculate helix
-			space.calculate(level, t)
-		}, (level, t, date) => {
+			space.calculate(level)
+		}, level => {
 			// create timepoints
 			if (allowed[level]) {
-				let p = point.make(level, date, t)
+				let p = point.make(level)
 				levels[level].points.push(p)
 				scene.add(p.group)
 			}
@@ -63,10 +63,10 @@ let setup = (pick, depth) => {
 		level.points.forEach(point => {
 			// show / hide points
 			point.group.visible = 
-				beg < point.t && point.t < end && 
+				beg < point.timestamp.time && point.timestamp.time < end && 
 				point.level <= depth
 			// point camera
-			if (i == prev && point.t == flat) {
+			if (i == prev && point.timestamp.time == flat) {
 				camCtrl.up       = point.gimble.y.clone()
 				camCtrl.target   = point.gimble.p.clone()
 				camCtrl.position = point.gimble.z.clone()
