@@ -1,12 +1,14 @@
 
 import '../graphic/style.sass'
 import {controls, scene, camera, loop} from './render'
-import {ArrowHelper, Vector3, Matrix4} from 'three'
-import {levels, world} from './config'
+import {Vector3, FogExp2} from 'three'
+import {levels, world, params} from './config'
 import * as point from './point'
 import * as time from './time'
 import * as space from './space'
 import * as travel from './travel'
+
+// scene.fog = new FogExp2(params.bg, 0.00001)
 
 export let camCtrl = {
 	target   : new Vector3(),
@@ -17,7 +19,7 @@ export let camCtrl = {
 
 let pick  = new Date()
 let depth = 0 // goes from year(0) -> seconds(5)
-// travel.doDepth(pick, depth)
+travel.doDepth(pick, depth)
 
 let state = true
 document.addEventListener('keyup', e => {
@@ -54,7 +56,7 @@ loop(() => {
 		.add(camCtrl.target.clone()
 			.sub(controls.target)
 			.multiplyScalar(speed))
-	if (0) {
+	if (1) {
 		let pos = camera.position.clone()
 			.add(camCtrl.position.clone()
 				.sub(camera.position)

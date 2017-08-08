@@ -31,7 +31,7 @@ for (let i in world) helpers.add(new ArrowHelper(
 	world[i], new Vector3(), 100000,
 	{x: 'red', y: 'green', z: 'blue'}[i]))
 helpers.add(new GridHelper(1000000, 100))
-scene.add(helpers)
+// scene.add(helpers)
 document.addEventListener('keyup', e => {
 	if (e.key == 'D') {
 		scene[toggle? 'add': 'remove'](helpers)

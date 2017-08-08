@@ -9,6 +9,7 @@ import {
 
 import {gimbleToMatrix, rotationsMatrix, vectorsToGimble} from './space'
 import {levels, params} from './config'
+import {generateMesh} from './text.js'
 
 export let make = me => {
 	// make gimble
@@ -20,10 +21,10 @@ export let make = me => {
 	circle.applyMatrix(m)
 	group.add(circle)
 	// label
-	let {mesh, canvas : cv, color : redraw} = label(me)
+	let mesh = generateMesh(format(me))
 	let orient = m.clone()
 		.multiply(new Matrix4().makeScale(25,25,25))
-		.multiply(new Matrix4().setPosition(new Vector3(cv.width/2+30,0,0)))
+		.multiply(new Matrix4().setPosition(new Vector3(30,0,0)))
 	group.add(mesh)
 	// TODO: https://threejs.org/docs/#api/geometries/PlaneBufferGeometry
 	let helpers = [
@@ -59,12 +60,12 @@ export let make = me => {
 		now (now) {
 			
 			let start = this.depth > 0 && levels[this.depth-1].loop
-			let color = now? params.now: start? params.base: params.start
+			let color = now? params.now: start? params.start: params.base
 			// let distance = math.mapLinear(Math.abs(now-this.timestamp.time), 0, 3000000000000, 0, 1)
 			// console.log(distance);
 			// color = color.clone().lerp(params.bg, distance)
 			circle.material.color = color
-			redraw(color)
+			// redraw(color)
 		},
 		debug (state) {
 			helpers.forEach(helper => 
@@ -80,54 +81,15 @@ let padding = number => {
 
 let format = me => {
 	let depth = levels.indexOf(me)
-	let label = ''
-	if (me.label == 'Date') {
-		label = `${me.date.getDate()} ${me.format[me.date.getDay()]}`
+	let out   = {}
+	if (me.label == 'Month') {
+		out.month = me.date.getMonth()
 	} else {
-		let number = me.date[`get${me.label}`]()
-		label = 
-			me.format? me.format[number]: 
-			depth > 2? padding(number): number
+		if (me.label == 'Date') {
+			out.day   = me.date.getDay()
+			out.digit = me.date[`get${me.label}`]()
+		} else
+			out.digit = padding(me.date[`get${me.label}`]())
 	}
-	return label
-}
-
-let cv = document.createElement(`canvas`)
-let ct = cv.getContext(`2d`)
-cv.height       = 32
-cv.width        = 256
-ct.font         = `20pt Helvetica`
-ct.textAlign    = `left`
-ct.textBaseline = `middle`
-
-let drawLabel = (mesh, string, color) => {
-	setTimeout(() => {
-		ct.clearRect(0,0,cv.width, cv.height)
-		if (0) {
-			ct.fillStyle = `silver`
-			ct.fillRect(0, 0, cv.width, cv.height)}
-		// text
-		ct.fillStyle = `#${color.getHexString()}`
-		ct.fillText(string, 0, cv.height / 2)
-		// texture
-		let texture   = new CanvasTexture(ct.getImageData(0,0,cv.width, cv.height))
-		mesh.geometry = new PlaneBufferGeometry(cv.width, cv.height)
-		mesh.material = new MeshBasicMaterial({
-			map         : texture,
-			transparent : true,
-			blending    : CustomBlending,
-			alphaTest   : 0.1
-		})
-	}, 0)
-}
-
-let label = me => {
-	// mesh
-	let mesh   = new Mesh()
-	let string = format(me)
-	return {
-		mesh, 
-		canvas : cv,
-		color  : color => drawLabel(mesh, string, color)
-	}
+	return out
 }

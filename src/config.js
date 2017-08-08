@@ -4,8 +4,8 @@ import {Vector3, Color} from 'three'
 export let params = {
 	range : 200,
 	bg    : new Color(`hsl(205,  10%,   7%)`),
-	base  : new Color(`hsl(205,   5%, 100%)`),
-	start : new Color(`hsl(205,   5%,  40%)`),
+	base  : new Color(`hsl(205,   5%,  40%)`),
+	start : new Color(`hsl(205,   5%, 100%)`),
 	now   : new Color(`hsl(205, 100%,  50%)`)
 }
 
