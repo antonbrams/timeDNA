@@ -43,7 +43,7 @@ export let rotationsMatrix = (l, w) => {
 	return m
 }
 
-export let gimbleToMatrix = level => new Matrix4()
+export let gimbleToMatrix = (level) => new Matrix4()
 	.makeScale(level.scale, level.scale, level.scale)
 	.setPosition(level.p)
 	.multiply(rotationsMatrix(level, world))

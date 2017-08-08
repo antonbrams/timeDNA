@@ -1,7 +1,7 @@
 
 import '../graphic/style.sass'
-import {ArrowHelper, Vector3, Matrix4} from 'three'
 import {controls, scene, camera, loop} from './render'
+import {ArrowHelper, Vector3, Matrix4} from 'three'
 import {levels, world} from './config'
 import * as point from './point'
 import * as time from './time'
@@ -13,10 +13,11 @@ export let camCtrl = {
 	position : new Vector3(),
 	up		 : new Vector3()
 }
+// TODO: https://gamedevelopment.tutsplus.com/tutorials/quick-tip-how-to-render-to-a-texture-in-threejs--cms-25686
 
 let pick  = new Date()
 let depth = 0 // goes from year(0) -> seconds(5)
-travel.doDepth(pick, depth)
+// travel.doDepth(pick, depth)
 
 let state = true
 document.addEventListener('keyup', e => {
@@ -53,7 +54,7 @@ loop(() => {
 		.add(camCtrl.target.clone()
 			.sub(controls.target)
 			.multiplyScalar(speed))
-	if (1) {
+	if (0) {
 		let pos = camera.position.clone()
 			.add(camCtrl.position.clone()
 				.sub(camera.position)
@@ -66,11 +67,9 @@ loop(() => {
 		camera.up.set(up.x, up.y, up.z)
 	}
 	// calculate camera local axis
-	let local = {}
-	for (let i in world)
-		local[i] = world[i].clone().applyQuaternion(camera.quaternion)
-		// local[i] = world[i].clone().applyMatrix4(camera.matrixWorld)
-		// m.multiplyVector3(local[i])
+	let local = {}; for (let i in world)
+		local[i] = world[i].clone()
+			.applyQuaternion(camera.quaternion)
 	// bildboard
 	levels.forEach(level => {
 		if (level.points.length > 0) 

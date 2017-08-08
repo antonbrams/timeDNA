@@ -1,8 +1,12 @@
 
-import {Vector3} from 'three'
+import {Vector3, Color} from 'three'
 
 export let params = {
-	range : 200
+	range : 200,
+	bg    : new Color(`hsl(205,  10%,   7%)`),
+	base  : new Color(`hsl(205,   5%, 100%)`),
+	start : new Color(`hsl(205,   5%,  40%)`),
+	now   : new Color(`hsl(205, 100%,  50%)`)
 }
 
 export let world = {

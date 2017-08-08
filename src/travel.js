@@ -22,7 +22,7 @@ export let doShift = (tOld, tNew, depth) => {
 	buildRange(toCreate.min, toCreate.max, depth, level => {
 		buildHelix(level)
 	}, level => {
-		let p = make(level)
+		let p = make(levels[level])
 		levels[level].points.push(p)
 		scene.add(p.group)
 	})
@@ -33,16 +33,18 @@ export let doShift = (tOld, tNew, depth) => {
 export let doDepth = (pick, depth) => {
 	clearPoints()
 	let prev = Math.max(depth-1, 0)
-	let f = flat(pick, prev).getTime()
-	let {min, max} = range(f, depth, params.range)
+	let currFlat = flat(pick, depth).getTime()
+	let prevFlat = flat(pick, prev).getTime()
+	let {min, max} = range(prevFlat, depth, params.range)
 	buildRange(min, max, depth, level => {
 		buildHelix(level)
 	}, level => {
-		let p = make(level)
+		let p = make(levels[level])
+		p.now(p.timestamp.time == currFlat)
 		levels[level].points.push(p)
 		scene.add(p.group)
 	})
-	updateCameraControl(depth, f)
+	updateCameraControl(depth, prevFlat)
 }
 
 let clearPoints = (to, from) => {
@@ -62,15 +64,14 @@ let clearPoints = (to, from) => {
 }
 
 let updateCameraControl = (depth, time) => {
-	levels.forEach((level, i) => {
-		level.points.forEach(p => {
-			if (i == Math.max(depth-1, 0) && p.timestamp.time == time) {
-				camCtrl.up       = p.gimble.y.clone()
-				camCtrl.target   = p.gimble.p.clone()
-				camCtrl.position = p.gimble.z.clone()
-					.multiplyScalar(level.scale * 10000)
-					.add(p.gimble.p)
-			}
-		})
+	let level = levels[Math.max(depth-1, 0)]
+	level.points.forEach(p => {
+		if (p.timestamp.time == time) {
+			camCtrl.up       = p.gimble.y.clone()
+			camCtrl.target   = p.gimble.p.clone()
+			camCtrl.position = p.gimble.z.clone()
+				.multiplyScalar(level.scale * 20000)
+				.add(p.gimble.p)
+		}
 	})
 }

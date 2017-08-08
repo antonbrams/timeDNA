@@ -16,9 +16,9 @@ export let buildSlice = (t, depth, helix, point, init = true) => {
 		if (init || me.loop) {
 			date = new Date(t)
 			let flatTime = flat(date, level)
-			me.date = date
-			me.flat = flatTime.getTime()
-			me.size = size(flatTime, level)
+			me.date  = date
+			me.flat  = flatTime.getTime()
+			me.size  = size(flatTime, level)
 		}
 		helix(level)
 		if (me.loop) point(level)

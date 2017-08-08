@@ -2,33 +2,25 @@
 
 import {
 	CircleBufferGeometry, MeshBasicMaterial, Mesh, ArrowHelper,
-	Texture, PlaneBufferGeometry, DoubleSide, CustomBlending,
+	CanvasTexture, PlaneBufferGeometry, DoubleSide, CustomBlending,
 	Matrix4, Vector3, Color, Group,
-	SphereBufferGeometry
+	SphereBufferGeometry, Math as math
 } from 'three'
 
 import {gimbleToMatrix, rotationsMatrix, vectorsToGimble} from './space'
-import {levels} from './config'
+import {levels, params} from './config'
 
-export let make = level => {
-	let me = levels[level]
-	me.x = new Vector3().crossVectors(me.y, me.z)
-	let m = gimbleToMatrix(me)
+export let make = me => {
+	// make gimble
+	me.x      = new Vector3().crossVectors(me.y, me.z)
+	let m     = gimbleToMatrix(me)
 	let group = new Group()
-	// let color = levels[Math.max(depth - 1, 1)].loop?
-	// 	new Color(`hsl(205, 10%, 50%)`):
-	// 	new Color(`hsl(205, 10%, 100%)`)
-	let color = new Color(`hsl(205, 10%, 50%)`)
-	// point 
-	let circle = new Mesh(
-		new CircleBufferGeometry(300, 12), 
-		new MeshBasicMaterial({color}))
-	// circle.geometry.colorsNeedUpdate = true
+	// circle
+	let circle = new Mesh(new CircleBufferGeometry(300, 12))
 	circle.applyMatrix(m)
 	group.add(circle)
 	// label
-	let {mesh, canvas : cv} = label(me, level, color)
-	// orientation
+	let {mesh, canvas : cv, color : redraw} = label(me)
 	let orient = m.clone()
 		.multiply(new Matrix4().makeScale(25,25,25))
 		.multiply(new Matrix4().setPosition(new Vector3(cv.width/2+30,0,0)))
@@ -42,13 +34,13 @@ export let make = level => {
 	// 	new MeshBasicMaterial({color : 'red'}))
 	// group.add(cylinder)
 	return {
-		group, level, 
-		gimble : {
+		group, 
+		depth  : levels.indexOf(me),
+		gimble : {m,
 			x : me.x.clone(),
 			y : me.y.clone(),
 			z : me.z.clone(),
-			p : me.p.clone(), 
-			m
+			p : me.p.clone()
 		},
 		timestamp : {
 			time : me.time,
@@ -57,27 +49,27 @@ export let make = level => {
 		lookAt (position, local) {
 			// look to camera
 			circle.lookAt(position)
-			// make camera
-			// let local = {
-			// 	y : new Vector3(0,1,0).applyQuaternion(camera.quaternion),
-			// 	z : me.p.clone().sub(position).normalize()
-			// }
-			// local.x = new Vector3().multiplyScalar(local.y, local.z)
 			// rotate to camera
-			let m = rotationsMatrix(local, me).elements
-			let angle = Math.atan2(m[9], m[10])
+			let rotM = rotationsMatrix(local, this.gimble).elements
+			let angle = Math.atan2(rotM[9], rotM[10])
 			mesh.matrix = new Matrix4()
 			mesh.applyMatrix(orient.clone()
 				.multiply(new Matrix4().makeRotationX(-angle)))
 		},
-		blend (a) {
-			// circle.material.color.set(
-			// 	color.lerp(new Color(`rgb(255,0,0)`, a)))
+		now (now) {
+			
+			let start = this.depth > 0 && levels[this.depth-1].loop
+			let color = now? params.now: start? params.base: params.start
+			// let distance = math.mapLinear(Math.abs(now-this.timestamp.time), 0, 3000000000000, 0, 1)
+			// console.log(distance);
+			// color = color.clone().lerp(params.bg, distance)
+			circle.material.color = color
+			redraw(color)
 		},
 		debug (state) {
 			helpers.forEach(helper => 
 				group[state?'add':'remove'](helper))
-		}
+		},
 	}
 }
 
@@ -86,7 +78,8 @@ let padding = number => {
 	return string.length == 1? `0${string}`: string
 }
 
-let format = (me, level) => {
+let format = me => {
+	let depth = levels.indexOf(me)
 	let label = ''
 	if (me.label == 'Date') {
 		label = `${me.date.getDate()} ${me.format[me.date.getDay()]}`
@@ -94,37 +87,47 @@ let format = (me, level) => {
 		let number = me.date[`get${me.label}`]()
 		label = 
 			me.format? me.format[number]: 
-			level > 2? padding(number): number
+			depth > 2? padding(number): number
 	}
 	return label
 }
 
-let label = (me, level, color) => {
-	let cv = document.createElement(`canvas`)
-	let ct = cv.getContext(`2d`)
-	cv.height = 32
-	cv.width  = 256
-	if (0) {
-		ct.fillStyle = `silver`
-		ct.fillRect(0, 0, cv.width, cv.height)}
-	ct.font         = `20pt Helvetica`
-	ct.textAlign    = `left`
-	ct.textBaseline = `middle`
-	ct.fillStyle    = `#${color.getHexString()}`
-	// text
-	ct.fillText(format(me, level), 0, cv.height / 2)
-	// texture
-	let texture = new Texture(cv)
-	texture.needsUpdate = true
-	// mesh
-	let mesh = new Mesh(
-		new PlaneBufferGeometry(cv.width, cv.height),
-		new MeshBasicMaterial({
+let cv = document.createElement(`canvas`)
+let ct = cv.getContext(`2d`)
+cv.height       = 32
+cv.width        = 256
+ct.font         = `20pt Helvetica`
+ct.textAlign    = `left`
+ct.textBaseline = `middle`
+
+let drawLabel = (mesh, string, color) => {
+	setTimeout(() => {
+		ct.clearRect(0,0,cv.width, cv.height)
+		if (0) {
+			ct.fillStyle = `silver`
+			ct.fillRect(0, 0, cv.width, cv.height)}
+		// text
+		ct.fillStyle = `#${color.getHexString()}`
+		ct.fillText(string, 0, cv.height / 2)
+		// texture
+		let texture   = new CanvasTexture(ct.getImageData(0,0,cv.width, cv.height))
+		mesh.geometry = new PlaneBufferGeometry(cv.width, cv.height)
+		mesh.material = new MeshBasicMaterial({
 			map         : texture,
-			side        : DoubleSide,
 			transparent : true,
 			blending    : CustomBlending,
 			alphaTest   : 0.1
-		}))
-	return {mesh, canvas : cv}
+		})
+	}, 0)
+}
+
+let label = me => {
+	// mesh
+	let mesh   = new Mesh()
+	let string = format(me)
+	return {
+		mesh, 
+		canvas : cv,
+		color  : color => drawLabel(mesh, string, color)
+	}
 }
