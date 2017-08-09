@@ -30,12 +30,10 @@ document.addEventListener('keyup', e => {
 		depth -= depth > 0? 1: 0
 		travel.doDepth(pick, depth)
 	} else if (e.key == 'a' || e.key == 'd') {
-		let prev = Math.max(depth-1, 0)
-		let flat = time.flat(pick, prev)
-		let next = time[e.key == 'd'? 'next':'prev'](flat, prev)
-		travel.doShift(flat, next, depth)
+		let next = time[e.key == 'd'? 'next':'prev']
+			(pick, Math.max(depth-1, 0))
+		travel.doDepth(next, depth)
 		pick = next
-		// makeOne(depth, 'past')
 	}
 	// debug helix
 	if (e.key == 'D') {
@@ -74,9 +72,7 @@ loop(() => {
 			.applyQuaternion(camera.quaternion)
 	// bildboard
 	levels.forEach(level => {
-		if (level.points.length > 0) 
-			level.points.forEach(p => {
-				p.lookAt(camera.position.clone(), local)
-			})
+		for (let i in level.points)
+			level.points[i].lookAt(camera.position.clone(), local)
 	})
 })

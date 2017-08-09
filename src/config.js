@@ -72,7 +72,7 @@ levels.forEach(level => {
 		p    : new Vector3(0,0,0), // position
 		arch : 0, // in radians
 	// cache
-		points : [] // points
+		points : {} // points
 	}
 	for (let i in dynamic) 
 		if (!level[i]) level[i] = dynamic[i]
