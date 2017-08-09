@@ -1,10 +1,8 @@
 
 
 import {
-	CanvasTexture, Mesh, CustomBlending, 
-	LinearFilter, Vector3, Face3, Geometry, 
-	MeshFaceMaterial, MeshBasicMaterial, Vector2,
-	PlaneBufferGeometry
+	CanvasTexture, Mesh, LinearFilter, Vector3, Face3, Geometry, 
+	MeshBasicMaterial, Vector2, PlaneBufferGeometry
 } from 'three'
 
 import {params} from './config.js'
@@ -18,7 +16,7 @@ export let makeText = (() => {
 	ct.font         = `25px Helvetica`
 	ct.textAlign    = `left`
 	ct.textBaseline = `middle`
-	ct.fillStyle 	= `#${params.base.getHexString()}`
+	ct.fillStyle 	= `white`
 	// canvas rendering
 	let h = cv.height / 2
 	let textureMap = {digits:[], month:[], day:[]}
@@ -43,10 +41,8 @@ export let makeText = (() => {
 	let texture		  = new CanvasTexture(cv)
 	texture.minFilter = LinearFilter
 	let material 	  = new MeshBasicMaterial({
-		map         : texture,
-		transparent : true,
-		blending    : CustomBlending,
-		alphaTest   : 0.1
+		alphaMap	: texture,
+		transparent : true
 	})
 	let scale  = 25
 	let height = h * scale
@@ -93,27 +89,17 @@ export let makeText = (() => {
 export let makeCircle = (() => {
 	let cv    = document.createElement(`canvas`)
 	let ct    = cv.getContext(`2d`)
-	cv.height = 32
-	cv.width  = 32
-	let colors = {
-		base  : {color: params.base}, 
-		start : {color: params.start}, 
-		now   : {color: params.now}}
-	for (let i in colors) {
-		ct.clearRect(0, 0, cv.width, cv.height)
-		ct.beginPath()
-		ct.arc(cv.width/2, cv.height/2, cv.width/2, 0, 2 * Math.PI)
-		ct.fillStyle = `#${colors[i].color.getHexString()}`
-		ct.fill()
-		colors[i].material = new MeshBasicMaterial({
-			map         : new CanvasTexture(ct.getImageData(0,0,cv.width, cv.height)),
-			transparent : true,
-			blending    : CustomBlending,
-			alphaTest   : 0.1
-		})
-	}
-	return () => {return {
-		mesh : new Mesh(new PlaneBufferGeometry(600, 600), colors.base.material),
-		setColor (color) {this.mesh.material = colors[color].material}
-	}}
+	cv.height = 64
+	cv.width  = 64
+	ct.beginPath()
+	ct.arc(cv.width/2, cv.height/2, cv.width/2-4, 0, 2 * Math.PI)
+	ct.fillStyle = `white`
+	ct.fill()
+	let material = new MeshBasicMaterial({
+		alphaMap	: new CanvasTexture(cv),
+		transparent : true
+	})
+	return () => new Mesh(
+		new PlaneBufferGeometry(600, 600), 
+		material.clone())
 })()

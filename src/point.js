@@ -18,11 +18,11 @@ export let make = me => {
 	let g = new Group()
 	// circle
 	let circle = makeCircle()
-	circle.mesh.applyMatrix(m)
-	g.add(circle.mesh)
+	circle.applyMatrix(m)
+	g.add(circle)
 	// label
-	let mesh = makeText(format(me))
-	g.add(mesh)
+	let text = makeText(format(me))
+	g.add(text)
 	// TODO: https://threejs.org/docs/#api/geometries/PlaneBufferGeometry
 	let helpers = [
 		new ArrowHelper(me.y, me.p, me.scale * 5000, 'red'),
@@ -42,18 +42,19 @@ export let make = me => {
 		},
 		lookAt (position, local) {
 			// look to camera
-			circle.mesh.lookAt(position)
+			circle.lookAt(position)
 			// rotate to camera
 			let rotM = rotationsMatrix(local, this.gimble).elements
 			let angle = Math.atan2(rotM[9], rotM[10])
-			mesh.matrix = new Matrix4()
-			mesh.applyMatrix(this.gimble.m.clone()
+			text.matrix = new Matrix4()
+			text.applyMatrix(this.gimble.m.clone()
 				.multiply(new Matrix4().makeRotationX(-angle)))
 		},
 		now (now) {
 			let start = this.depth > 0 && levels[this.depth-1].loop
-			let color = now? 'now': start? 'start': 'base'
-			circle.setColor(color)
+			let c = now? params.now: start? params.start: params.base
+			text.material.color = c
+			circle.material.color = c
 			// let distance = math.mapLinear(Math.abs(now-this.timestamp.time), 0, 3000000000000, 0, 1)
 			// color = color.clone().lerp(params.bg, distance)
 			// circle.material.opacity = .1
