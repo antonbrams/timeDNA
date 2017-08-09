@@ -2,7 +2,7 @@
 import {Vector3, Color} from 'three'
 
 export let params = {
-	range : 200,
+	range : 300,
 	bg    : new Color(`hsl(205,  10%,   7%)`),
 	base  : new Color(`hsl(205,   5%,  40%)`),
 	start : new Color(`hsl(205,   5%, 100%)`),
@@ -28,22 +28,13 @@ export let levels = [
 		radius : 21175,
 		flip   : 0,
 		scale  : 1,
-		ms     : 2628000000,
-		format : [
-			'Januar', 'Februar', 'March', 'April', 
-			'Mai', 'June', 'July', 'August', 
-			'September', 'October', 'November', 'December'
-		]
+		ms     : 2628000000
 	},{
 		label  : 'Date', 
 		radius : 6652, 
 		flip   : 1, 
 		scale  : .3, 
-		ms     : 86400000,
-		format : [
-			'Sunday', 'Monday', 'Tuesday', 'Wednesday', 
-			'Thursday', 'Friday', 'Saturday'
-		] 
+		ms     : 86400000
 	},{
 		label  : 'Hours', 
 		radius : 1741, 

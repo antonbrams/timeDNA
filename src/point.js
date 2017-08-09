@@ -9,33 +9,26 @@ import {
 
 import {gimbleToMatrix, rotationsMatrix, vectorsToGimble} from './space'
 import {levels, params} from './config'
-import {generateMesh} from './text.js'
+import {makeCircle, makeText} from './prerender.js'
 
 export let make = me => {
 	// make gimble
-	me.x      = new Vector3().crossVectors(me.y, me.z)
-	let m     = gimbleToMatrix(me)
-	let group = new Group()
+	me.x  = new Vector3().crossVectors(me.y, me.z)
+	let m = gimbleToMatrix(me)
+	let g = new Group()
 	// circle
-	let circle = new Mesh(new CircleBufferGeometry(300, 12))
-	circle.applyMatrix(m)
-	group.add(circle)
+	let circle = makeCircle()
+	circle.mesh.applyMatrix(m)
+	g.add(circle.mesh)
 	// label
-	let mesh = generateMesh(format(me))
-	let orient = m.clone()
-		.multiply(new Matrix4().makeScale(25,25,25))
-		.multiply(new Matrix4().setPosition(new Vector3(30,0,0)))
-	group.add(mesh)
+	let mesh = makeText(format(me))
+	g.add(mesh)
 	// TODO: https://threejs.org/docs/#api/geometries/PlaneBufferGeometry
 	let helpers = [
 		new ArrowHelper(me.y, me.p, me.scale * 5000, 'red'),
 		new ArrowHelper(me.z, me.p, me.scale * 5000, 'green')]
-	// let cylinder = new Mesh(
-	// 	new SphereBufferGeometry(100, 32, 32),
-	// 	new MeshBasicMaterial({color : 'red'}))
-	// group.add(cylinder)
 	return {
-		group, 
+		group: g, 
 		depth  : levels.indexOf(me),
 		gimble : {m,
 			x : me.x.clone(),
@@ -49,27 +42,26 @@ export let make = me => {
 		},
 		lookAt (position, local) {
 			// look to camera
-			circle.lookAt(position)
+			circle.mesh.lookAt(position)
 			// rotate to camera
 			let rotM = rotationsMatrix(local, this.gimble).elements
 			let angle = Math.atan2(rotM[9], rotM[10])
 			mesh.matrix = new Matrix4()
-			mesh.applyMatrix(orient.clone()
+			mesh.applyMatrix(this.gimble.m.clone()
 				.multiply(new Matrix4().makeRotationX(-angle)))
 		},
 		now (now) {
-			
 			let start = this.depth > 0 && levels[this.depth-1].loop
-			let color = now? params.now: start? params.start: params.base
+			let color = now? 'now': start? 'start': 'base'
+			circle.setColor(color)
 			// let distance = math.mapLinear(Math.abs(now-this.timestamp.time), 0, 3000000000000, 0, 1)
-			// console.log(distance);
 			// color = color.clone().lerp(params.bg, distance)
-			circle.material.color = color
-			// redraw(color)
+			// circle.material.opacity = .1
+			// mesh.material.opacity = .1
 		},
 		debug (state) {
 			helpers.forEach(helper => 
-				group[state?'add':'remove'](helper))
+				g[state?'add':'remove'](helper))
 		},
 	}
 }
