@@ -5,7 +5,7 @@ import {
 	MeshBasicMaterial, Vector2, PlaneBufferGeometry
 } from 'three'
 
-import {params} from './config.js'
+import config from './config.js'
 
 export let makeText = (() => {
 	// canvas settings
@@ -43,7 +43,7 @@ export let makeText = (() => {
 		alphaMap	: texture,
 		transparent : true
 	})
-	let height = h * params.labelScale
+	let height = h * config.labelScale
 	// generate mesh
 	return query => {
 		let left = .03
@@ -58,7 +58,7 @@ export let makeText = (() => {
 			let w = letter.width
 			let l = letter.left  / cv.width
 			let r = w / cv.width + l
-			left += w * params.labelScale
+			left += w * config.labelScale
 			geometry.vertices.push(
 				new Vector3(left,-height,0), 
 				new Vector3(left, height,0))
@@ -98,6 +98,6 @@ export let makeCircle = (() => {
 		transparent : true
 	})
 	return () => new Mesh(
-		new PlaneBufferGeometry(params.dotScale, params.dotScale),
+		new PlaneBufferGeometry(config.dotScale, config.dotScale),
 		material.clone())
 })()

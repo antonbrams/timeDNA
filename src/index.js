@@ -2,7 +2,7 @@
 import '../graphic/style.sass'
 import {controls, scene, camera, loop} from './render'
 import {Vector3} from 'three'
-import {levels, world, params} from './config'
+import config, {levels, world} from './config'
 import * as point from './point'
 import * as time from './time'
 import * as space from './space'
@@ -58,7 +58,7 @@ document.addEventListener('keypress', e => {
 
 loop(() => {
 	// automatic camera movement
-	let speed = params.camSpeed
+	let speed = config.camSpeed
 	if (1 && camCtrl.target.distanceTo(controls.target) > 0.01) {
 		controls.target
 			.add(camCtrl.target.clone()
@@ -86,7 +86,7 @@ loop(() => {
 			p.animateOpacity()
 			if (p.isVisible) {
 				p.lookAt(camera.position.clone(), local)
-				p.debug(params.debug)
+				p.debug(config.debug)
 			}
 		}
 	})

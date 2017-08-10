@@ -10,7 +10,7 @@ import {
 	StereoEffect
 } from 'vr'
 
-import {world, params} from './config'
+import config, {world} from './config'
 import Stats from 'stats-js'
 
 // stats
@@ -34,21 +34,21 @@ export let controls = new OrbitControls(camera, renderer.domElement)
 
 // camera scene
 export let scene = new Scene()
-scene.background = params.bg
+scene.background = config.bg
 
 // show world coordinates
 let helpers = new Group()
 for (let i in world) helpers.add(new ArrowHelper(
 	world[i], new Vector3(), 1, {x: 'red', y: 'green', z: 'blue'}[i]))
 helpers.add(new GridHelper(1000, 1000))
-if (params.debug) scene.add(helpers)
+if (config.debug) scene.add(helpers)
 
 // keyboard events
 document.addEventListener('keypress', e => {
 	if (e.key == 'D') {
-		params.debug = !params.debug
-		scene[params.debug? 'add': 'remove'](helpers)
-		document.body[params.debug? 'appendChild': 'removeChild'](stats.domElement)
+		config.debug = !config.debug
+		scene[config.debug? 'add': 'remove'](helpers)
+		document.body[config.debug? 'appendChild': 'removeChild'](stats.domElement)
 		e.preventDefault()
 	}
 	if (e.key == 'f') {
@@ -69,14 +69,14 @@ if (vrMode) {
 // update loop
 export let loop = callback => {
 	let animate = () => {
-		if (params.debug) stats.begin()
+		if (config.debug) stats.begin()
 		callback()
 		controls.update()
 		if (vrMode)
 			effect.render(scene, camera)
 		else
 			renderer.render(scene, camera)
-		if (params.debug) stats.end()
+		if (config.debug) stats.end()
 		requestAnimationFrame(animate)
 	}
 	animate()

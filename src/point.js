@@ -5,7 +5,7 @@ import {
 	Color, Group, Math as math
 } from 'three'
 
-import {levels, params} from './config'
+import config, {levels} from './config'
 import * as helix from './space'
 import * as PreRender from './prerender.js'
 
@@ -59,7 +59,7 @@ export let build = me => {
 			let cycle = levels[Math.max(time.depth-1, 0)].points[time.unix]
 			let start = time.depth > 0 && cycle && cycle.time.loop
 			let color = time.unix == now? 
-				params.now: start? params.start: params.base
+				config.now: start? config.start: config.base
 			text.material.color   =
 			circle.material.color = color
 			// set opacity
@@ -70,7 +70,7 @@ export let build = me => {
 				opacity.set = 0
 		},
 		animateOpacity () {
-			opacity.cur += (opacity.set - opacity.cur) * params.fadeSpeed
+			opacity.cur += (opacity.set - opacity.cur) * config.fadeSpeed
 			// set opacity
 			circle.material.opacity =
 			text.material.opacity   = opacity.cur

@@ -1,7 +1,7 @@
 
 import {Vector3, Color} from 'three'
 
-export let params = {
+export default {
 	// params
 	range      : 200,
 	camSpeed   : .05,

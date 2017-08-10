@@ -1,5 +1,5 @@
 
-import {levels, params} from './config'
+import config, {levels} from './config'
 
 // go through time
 export let buildRange = (min, max, depth, check, helix, point) => {

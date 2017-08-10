@@ -1,5 +1,5 @@
 
-import {levels, params} from './config'
+import config, {levels} from './config'
 import * as time from './time'
 import * as space from './space'
 import * as Point from './point'
@@ -9,7 +9,7 @@ export let doDepth = (pick, depth, points) => {
 	// get flat
 	let now = time.flat(pick, depth).getTime()
 	// build
-	let toBuild = time.range(now, depth, params.range)
+	let toBuild = time.range(now, depth, config.range)
 	time.buildRange(toBuild.min, toBuild.max, depth,
 		time  => !levels[depth].points[time],
 		level => space.buildHelix(level),
@@ -22,7 +22,7 @@ export let doDepth = (pick, depth, points) => {
 	// clear & set cam
 	let pDepth   = Math.max(depth-1, 0)
 	let pTime    = time.flat(pick, pDepth).getTime()
-	let toDelete = time.range(now, 0, params.range)
+	let toDelete = time.range(now, 0, config.range)
 	// iterate through all points
 	levels.forEach((level, l) => {
 		let flat = time.flat(pick, l).getTime()
