@@ -1,88 +1,101 @@
 
 
 import {
-	CircleBufferGeometry, MeshBasicMaterial, Mesh, ArrowHelper,
-	CanvasTexture, PlaneBufferGeometry, DoubleSide, CustomBlending,
-	Matrix4, Vector3, Color, Group,
-	SphereBufferGeometry, Math as math
+	ArrowHelper, Matrix4, Vector3, 
+	Color, Group, Math as math
 } from 'three'
 
-import {gimbleToMatrix, rotationsMatrix, vectorsToGimble} from './space'
 import {levels, params} from './config'
-import {makeCircle, makeText} from './prerender.js'
+import * as helix from './space'
+import * as PreRender from './prerender.js'
 
-export let make = me => {
+export let build = me => {
 	// make gimble
-	me.x  = new Vector3().crossVectors(me.y, me.z)
-	let m = gimbleToMatrix(me)
-	let g = new Group()
+	let group   = new Group()
+	let opacity = {set:0, cur:0}
+	let time = {
+		unix  : me.time.unix,
+		date  : me.time.date,
+		loop  : me.time.loop,
+		depth : levels.indexOf(me)
+	}
+	let space = {
+		x : new Vector3().crossVectors(me.space.y, me.space.z),
+		y : me.space.y.clone(),
+		z : me.space.z.clone(),
+		p : me.space.p.clone()
+	}
+	space.m = helix.gimbleToMatrix(space, me.scale)
 	// circle
-	let circle = makeCircle()
-	circle.applyMatrix(m)
-	g.add(circle)
+	let circle = PreRender.makeCircle()
+	circle.applyMatrix(space.m)
+	group.add(circle)
 	// label
-	let text = makeText(format(me))
-	g.add(text)
+	let text = PreRender.makeText(format(me, time.depth))
+	group.add(text)
+	// helpers
 	// TODO: https://threejs.org/docs/#api/geometries/PlaneBufferGeometry
 	let helpers = [
-		new ArrowHelper(me.y, me.p, me.scale * 5000, 'red'),
-		new ArrowHelper(me.z, me.p, me.scale * 5000, 'green')]
+		new ArrowHelper(space.y, space.p, me.scale * 5000, 'red'),
+		new ArrowHelper(space.z, space.p, me.scale * 5000, 'green')]
+	// external interface
 	return {
-		group: g, 
-		depth  : levels.indexOf(me),
-		gimble : {m,
-			x : me.x.clone(),
-			y : me.y.clone(),
-			z : me.z.clone(),
-			p : me.p.clone()
-		},
-		timestamp : {
-			time : me.time,
-			date : me.date
-		},
+		group, space, time,
 		lookAt (position, local) {
 			// look to camera
 			circle.lookAt(position)
 			// rotate to camera
-			let rotM = rotationsMatrix(local, this.gimble).elements
-			let angle = Math.atan2(rotM[9], rotM[10])
+			let m = helix.rotationsMatrix(local, space).elements
+			let a = Math.atan2(m[9], m[10])
 			text.matrix = new Matrix4()
-			text.applyMatrix(this.gimble.m.clone()
-				.multiply(new Matrix4().makeRotationX(-angle)))
+			text.applyMatrix(space.m.clone()
+				.multiply(new Matrix4().makeRotationX(-a)))
 		},
-		now (now) {
-			let start = this.depth > 0 && levels[this.depth-1].loop
-			let c = now? params.now: start? params.start: params.base
-			text.material.color = c
-			circle.material.color = c
-			// let distance = math.mapLinear(Math.abs(now-this.timestamp.time), 0, 3000000000000, 0, 1)
-			// color = color.clone().lerp(params.bg, distance)
-			// circle.material.opacity = .1
-			// mesh.material.opacity = .1
+		get isVisible () {
+			return opacity.cur > 0
+		},
+		setColors (min, now, max, depth) {
+			// set color
+			let cycle = levels[Math.max(time.depth-1, 0)].points[time.unix]
+			let start = time.depth > 0 && cycle && cycle.time.loop
+			let color = time.unix == now? 
+				params.now: start? params.start: params.base
+			text.material.color   =
+			circle.material.color = color
+			// set opacity
+			if (depth >= time.depth) {
+				let x = math.mapLinear(time.unix, min, max, 0, 1)
+				opacity.set = 1 - Math.pow(x * 2 - 1, 2)
+			} else 
+				opacity.set = 0
+		},
+		animateOpacity () {
+			opacity.cur += (opacity.set - opacity.cur) * 0.05
+			// set opacity
+			circle.material.opacity =
+			text.material.opacity   = opacity.cur
+			// hide
+			group.visible = opacity.cur > 0
 		},
 		debug (state) {
 			helpers.forEach(helper => 
-				g[state?'add':'remove'](helper))
+				group[state?'add':'remove'](helper))
 		},
 	}
 }
 
-let padding = number => {
-	let string = `${number}`
-	return string.length == 1? `0${string}`: string
-}
-
-let format = me => {
-	let depth = levels.indexOf(me)
+let format = (me, depth) => {
 	let out   = {}
-	if (me.label == 'Month') {
-		out.month = me.date.getMonth()
-	} else {
+	if (me.label == 'Month')
+		out.month = me.time.date.getMonth()
+	else {
 		if (me.label == 'Date') {
-			out.day   = me.date.getDay()
-			out.digit = me.date[`get${me.label}`]()
-		} else
-			out.digit = padding(me.date[`get${me.label}`]())
+			out.day   = me.time.date.getDay()
+			out.digit = me.time.date[`get${me.label}`]()
+		} else {
+			let digit = `${me.time.date[`get${me.label}`]()}`
+			out.digit = digit.length == 1? `0${digit}`: digit
+		}
 	}
 	return out
 }

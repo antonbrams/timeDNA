@@ -1,47 +1,55 @@
 
 import '../graphic/style.sass'
 import {controls, scene, camera, loop} from './render'
-import {Vector3, FogExp2} from 'three'
+import {Vector3} from 'three'
 import {levels, world, params} from './config'
 import * as point from './point'
 import * as time from './time'
 import * as space from './space'
 import * as travel from './travel'
 
-// scene.fog = new FogExp2(params.bg, 0.00001)
+// TODO: https://gamedevelopment.tutsplus.com/tutorials/quick-tip-how-to-render-to-a-texture-in-threejs--cms-25686
 
-export let camCtrl = {
+let camCtrl = {
 	target   : new Vector3(),
 	position : new Vector3(),
 	up		 : new Vector3()
 }
-// TODO: https://gamedevelopment.tutsplus.com/tutorials/quick-tip-how-to-render-to-a-texture-in-threejs--cms-25686
+
+let calc = (pick, depth) => {
+	travel.doDepth(pick, depth, (p, current) => {
+		if (current) {
+			camCtrl.up       = p.space.y.clone()
+			camCtrl.target   = p.space.p.clone()
+			camCtrl.position = p.space.z.clone()
+				.multiplyScalar(levels[depth].scale * 50000)
+				.add(p.space.p)
+		}
+	})
+}
 
 let pick  = new Date()
 let depth = 0 // goes from year(0) -> seconds(5)
-travel.doDepth(pick, depth)
+calc(pick, depth)
 
 let state = true
 document.addEventListener('keyup', e => {
-	if (e.key == 'w') {
-		depth += depth < levels.length - 1? 1: 0
-		travel.doDepth(pick, depth)
-	} else if (e.key == 's') {
-		depth -= depth > 0? 1: 0
-		travel.doDepth(pick, depth)
+	if (e.key == 'w' || e.key == 's') {
+		depth +=
+			e.key == 'w' && depth < levels.length - 1? 1: 
+			e.key == 's' && depth > 0? -1: 0
+		calc(pick, depth)
 	} else if (e.key == 'a' || e.key == 'd') {
 		let next = time[e.key == 'd'? 'next':'prev']
 			(pick, Math.max(depth-1, 0))
-		travel.doDepth(next, depth)
+		calc(next, depth)
 		pick = next
 	}
 	// debug helix
 	if (e.key == 'D') {
 		levels.forEach(level => {
-			if (level.points.length > 0) 
-				level.points.forEach(p => {
-					p.debug(state)
-				})
+			for (let i in level.points)
+				level.points[i].debug(state)
 		})
 		state = !state
 	}
@@ -72,7 +80,10 @@ loop(() => {
 			.applyQuaternion(camera.quaternion)
 	// bildboard
 	levels.forEach(level => {
-		for (let i in level.points)
-			level.points[i].lookAt(camera.position.clone(), local)
+		for (let i in level.points) {
+			let p = level.points[i]
+			if (p.isVisible) p.lookAt(camera.position.clone(), local)
+			p.animateOpacity()
+		}
 	})
 })

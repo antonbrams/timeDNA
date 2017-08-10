@@ -11,12 +11,11 @@ export let makeText = (() => {
 	// canvas settings
 	let cv          = document.createElement(`canvas`)
 	let ct          = cv.getContext(`2d`)
-	cv.height       = 32
-	cv.width        = 3000
-	ct.font         = `25px Helvetica`
-	ct.textAlign    = `left`
-	ct.textBaseline = `middle`
+	cv.height       = 64
+	cv.width        = 6000
+	ct.font         = `50px Arial`
 	ct.fillStyle 	= `white`
+	ct.textBaseline = `middle`
 	// canvas rendering
 	let h = cv.height / 2
 	let textureMap = {digits:[], month:[], day:[]}
@@ -44,11 +43,11 @@ export let makeText = (() => {
 		alphaMap	: texture,
 		transparent : true
 	})
-	let scale  = 25
+	let scale  = 13
 	let height = h * scale
 	// generate mesh
 	return query => {
-		let left = 30
+		let left = 50
 		let f    = 0
 		var geometry = new Geometry()
 		// start
@@ -89,8 +88,8 @@ export let makeText = (() => {
 export let makeCircle = (() => {
 	let cv    = document.createElement(`canvas`)
 	let ct    = cv.getContext(`2d`)
-	cv.height = 64
-	cv.width  = 64
+	cv.height = 128
+	cv.width  = 128
 	ct.beginPath()
 	ct.arc(cv.width/2, cv.height/2, cv.width/2-4, 0, 2 * Math.PI)
 	ct.fillStyle = `white`

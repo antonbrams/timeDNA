@@ -8,29 +8,29 @@ export let buildHelix = level => {
 	let me = levels[level]
 	// calculate gimbles
 	if (level == 0)
-		me.p.z = me.time * me.spread
+		me.space.p.z = me.time.unix * me.spread
 	else {
 		// gain
 		let prev = levels[level - 1]
-		let gain = 2 * Math.PI / prev.size
-		me.arch  = gain * me.radius
+		let gain = 2 * Math.PI / prev.time.size
+		me.space.arch = gain * me.radius
 		// rotation
 		let r = new Matrix4()
-			.makeRotationAxis(prev.z, - gain * (me.time - prev.flat))
+			.makeRotationAxis(prev.space.z, - gain * (me.time.unix - prev.time.flat))
 		let g = new Matrix4()
-			.makeRotationAxis(prev.y, - Math.atan(prev.arch / me.arch))
+			.makeRotationAxis(prev.space.y, - Math.atan(prev.space.arch / me.space.arch))
 		// gimble vectors
-		me.y = prev.z.clone()
+		me.space.y = prev.space.z.clone()
 			.applyMatrix4(g)
 			.applyMatrix4(r)
-		me.z = new Vector3()
-			.crossVectors(prev.y, prev.z)
+		me.space.z = new Vector3()
+			.crossVectors(prev.space.y, prev.space.z)
 			.applyMatrix4(g)
 			.applyMatrix4(r)
-		me.p = prev.y.clone()
+		me.space.p = prev.space.y.clone()
 			.applyMatrix4(r)
 			.multiplyScalar(me.radius)
-			.add(prev.p)
+			.add(prev.space.p)
 	}
 }
 
@@ -43,7 +43,7 @@ export let rotationsMatrix = (l, w) => {
 	return m
 }
 
-export let gimbleToMatrix = (level) => new Matrix4()
-	.makeScale(level.scale, level.scale, level.scale)
-	.setPosition(level.p)
-	.multiply(rotationsMatrix(level, world))
+export let gimbleToMatrix = (gimble, scale) => new Matrix4()
+	.makeScale(scale, scale, scale)
+	.setPosition(gimble.p)
+	.multiply(rotationsMatrix(gimble, world))

@@ -1,80 +1,46 @@
 
 import {levels, params} from './config'
-import {range, buildRange, size, flat} from './time'
-import {buildHelix} from './space'
-import {make} from './point'
-import {scene} from './render'
-import {camCtrl} from './index'
+import * as time from './time'
+import * as space from './space'
+import * as Point from './point'
+import * as render from './render'
 
-// export let doShift = (tOld, tNew, depth) => {
-// 	let rOld = range(tOld.getTime(), depth, params.range)
-// 	let rNew = range(tNew.getTime(), depth, params.range)
-// 	let dir  = tNew - tOld > 0
-// 	// delete
-// 	let toKeep = {
-// 		min : dir? rNew.min: rOld.min,
-// 		max : dir? rOld.max: rNew.max}
-// 	clearPoints(toKeep.min, toKeep.max)
-// 	// create
-// 	let toCreate = {
-// 		min : dir? rOld.max: rNew.min - size(new Date(rNew.max), depth),
-// 		max : dir? rNew.max: rOld.min}
-// 	buildRange(toCreate.min, toCreate.max, depth, level => {
-// 		buildHelix(level)
-// 	}, level => {
-// 		let p = make(levels[level])
-// 		levels[level].points.push(p)
-// 		scene.add(p.group)
-// 	})
-// 	// console.log(levels.map(level => [level.label, level.points.length]))
-// 	updateCameraControl(depth, tNew.getTime())
-// }
-
-let lastTime = 0
-export let doDepth = (pick, depth) => {
-	let now = flat(pick, depth).getTime()
+export let doDepth = (pick, depth, points) => {
+	// get flat
+	let now = time.flat(pick, depth).getTime()
 	// build
-	let toBuild = range(now, depth, params.range)
-	buildRange(toBuild.min, toBuild.max, depth,
+	let toBuild = time.range(now, depth, params.range)
+	time.buildRange(toBuild.min, toBuild.max, depth,
 		time  => !levels[depth].points[time],
-		level => buildHelix(level), 
+		level => space.buildHelix(level),
 		level => {
 			let me = levels[level]
-			if (!me.points[me.time]) {
-				let p = make(me)
-				p.now(p.timestamp.time == now)
-				me.points[me.time] = p
-				scene.add(p.group)
-			}
+			if (!me.points[me.time.unix]) {
+				me.points[me.time.unix] = Point.build(me)
+				render.scene.add(me.points[me.time.unix].group)}
 		})
-		
-	let pDepth  = Math.max(depth-1, 0)
-	let pTime   = flat(pick, pDepth).getTime()
-	let pTarget = null
 	// clear & set cam
-	if (lastTime != now) {
-		lastTime = now
-		let toDelete  = range(now, 0, params.range)
-		levels.forEach((level, l) => {
-			for (let i in level.points) {
-				if (i < toDelete.min || toDelete.max < i) {
-					scene.remove(level.points[i].group)
-					delete level.points[i]
-				}
-				if (l == pDepth && level.points[i].timestamp.time == pTime) 
-					pTarget = level.points[i]
+	let pDepth   = Math.max(depth-1, 0)
+	let pTime    = time.flat(pick, pDepth).getTime()
+	let toDelete = time.range(now, 0, params.range)
+	// iterate through all points
+	levels.forEach((level, l) => {
+		let flat = time.flat(pick, l).getTime()
+		for (let i in level.points) {
+			let p = level.points[i]
+			// remove if outside of range
+			if (lastTime != now && (i < toDelete.min || toDelete.max < i)) {
+				render.scene.remove(p.group)
+				delete level.points[i]
+			// do other stuff
+			} else {
+				// set colors
+				p.setColors(toBuild.min, flat, toBuild.max, depth)
+				// interface
+				points && points(p, l == pDepth && p.time.unix == pTime)
 			}
-		})
-	} else {
-		let p = levels[pDepth].points
-		for (let i in p)
-			if (p[i].timestamp.time == pTime) 
-				pTarget = p[i]
-	}
-	// cam stuff
-	camCtrl.up       = pTarget.gimble.y.clone()
-	camCtrl.target   = pTarget.gimble.p.clone()
-	camCtrl.position = pTarget.gimble.z.clone()
-		.multiplyScalar(levels[pDepth].scale * 20000)
-		.add(pTarget.gimble.p)
+		}
+	})
+	lastTime = now
 }
+let lastTime = 0
