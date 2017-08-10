@@ -36,8 +36,8 @@ export let build = me => {
 	// helpers
 	// TODO: https://threejs.org/docs/#api/geometries/PlaneBufferGeometry
 	let helpers = [
-		new ArrowHelper(space.y, space.p, me.scale * 5000, 'red'),
-		new ArrowHelper(space.z, space.p, me.scale * 5000, 'green')]
+		new ArrowHelper(space.y, space.p, me.scale * 0.3, 'red'),
+		new ArrowHelper(space.z, space.p, me.scale * 0.3, 'green')]
 	// external interface
 	return {
 		group, space, time,
@@ -70,7 +70,7 @@ export let build = me => {
 				opacity.set = 0
 		},
 		animateOpacity () {
-			opacity.cur += (opacity.set - opacity.cur) * 0.05
+			opacity.cur += (opacity.set - opacity.cur) * params.fadeSpeed
 			// set opacity
 			circle.material.opacity =
 			text.material.opacity   = opacity.cur

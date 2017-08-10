@@ -2,11 +2,19 @@
 import {Vector3, Color} from 'three'
 
 export let params = {
-	range : 200,
-	bg    : new Color(`hsl(205,  10%,   7%)`),
-	base  : new Color(`hsl(205,   5%,  40%)`),
-	start : new Color(`hsl(205,   5%, 100%)`),
-	now   : new Color(`hsl(205, 100%,  50%)`)
+	// params
+	range      : 200,
+	camSpeed   : .05,
+	fadeSpeed  : .1,
+	labelScale : .0007,
+	dotScale   : .02,
+	// colors
+	bg    : new Color(`hsl(200,  10%,   7%)`),
+	base  : new Color(`hsl(200,   5%,  40%)`),
+	start : new Color(`hsl(200,   5%, 100%)`),
+	now   : new Color(`hsl(200, 100%,  60%)`),
+	// debug
+	debug : 0
 }
 
 export let world = {
@@ -18,34 +26,33 @@ export let world = {
 export let levels = [
 	{
 		label  : 'FullYear',
-		spread : .000001,
-		arch   : .000001,
-		scale  : 7, 
+		spread : .00000002,
+		scale  : 2000, 
 		ms     : 31540000000
 	},{
 		label  : 'Month', 
-		radius : 21175,
-		scale  : 1,
+		radius : 400,
+		scale  : 400,
 		ms     : 2628000000
 	},{
 		label  : 'Date', 
-		radius : 6652, 
-		scale  : .3, 
+		radius : 150, 
+		scale  : 150, 
 		ms     : 86400000
 	},{
 		label  : 'Hours', 
-		radius : 1741, 
-		scale  : .05, 
+		radius : 38,
+		scale  : 38, 
 		ms     : 3600000
 	},{
 		label  : 'Minutes', 
-		radius : 364, 
-		scale  : .01, 
+		radius : 10, 
+		scale  : 10,
 		ms     : 60000
 	},{
 		label  : 'Seconds', 
-		radius : 95, 
-		scale  : .002, 
+		radius : 1, 
+		scale  : 1,
 		ms	   : 1000
 	}
 ]
@@ -61,11 +68,10 @@ levels.forEach(level => {
 			loop : false, // bool
 		},
 		space : {
-			x	 : world.x, // left vector
-			y    : world.y, // up vector
-			z    : world.z, // forward vector
-			p    : new Vector3(0,0,0), // position
-			arch : 0, // in radians
+			y : world.y, // up vector
+			z : world.z, // forward vector
+			p : new Vector3(0,0,0), // position
+			a : 0, // arch in radians
 		},
 		points : {} // points
 	}

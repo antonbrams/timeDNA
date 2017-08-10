@@ -22,18 +22,26 @@ let calc = (pick, depth) => {
 			camCtrl.up       = p.space.y.clone()
 			camCtrl.target   = p.space.p.clone()
 			camCtrl.position = p.space.z.clone()
-				.multiplyScalar(levels[depth].scale * 50000)
+				.add(p.space.y.clone().multiplyScalar(.25))
+				.add(p.space.x.clone().multiplyScalar(-.15))
+				.multiplyScalar(levels[Math.max(depth, 1)].radius * 2.5)
 				.add(p.space.p)
 		}
 	})
 }
 
 let pick  = new Date()
-let depth = 0 // goes from year(0) -> seconds(5)
-calc(pick, depth)
+let depth = 1 // goes from year(0) -> seconds(5)
 
-let state = true
-document.addEventListener('keyup', e => {
+if (0)
+	calc(pick, depth)
+else if (1)
+	setInterval(() => {
+		pick  = new Date()
+		calc(pick, depth)
+	}, 1000)
+
+document.addEventListener('keypress', e => {
 	if (e.key == 'w' || e.key == 's') {
 		depth +=
 			e.key == 'w' && depth < levels.length - 1? 1: 
@@ -45,24 +53,17 @@ document.addEventListener('keyup', e => {
 		calc(next, depth)
 		pick = next
 	}
-	// debug helix
-	if (e.key == 'D') {
-		levels.forEach(level => {
-			for (let i in level.points)
-				level.points[i].debug(state)
-		})
-		state = !state
-	}
+	e.preventDefault()
 })
 
 loop(() => {
 	// automatic camera movement
-	let speed = .02
-	controls.target
-		.add(camCtrl.target.clone()
-			.sub(controls.target)
-			.multiplyScalar(speed))
-	if (1) {
+	let speed = params.camSpeed
+	if (1 && camCtrl.target.distanceTo(controls.target) > 0.01) {
+		controls.target
+			.add(camCtrl.target.clone()
+				.sub(controls.target)
+				.multiplyScalar(speed))
 		let pos = camera.position.clone()
 			.add(camCtrl.position.clone()
 				.sub(camera.position)
@@ -82,8 +83,11 @@ loop(() => {
 	levels.forEach(level => {
 		for (let i in level.points) {
 			let p = level.points[i]
-			if (p.isVisible) p.lookAt(camera.position.clone(), local)
 			p.animateOpacity()
+			if (p.isVisible) {
+				p.lookAt(camera.position.clone(), local)
+				p.debug(params.debug)
+			}
 		}
 	})
 })

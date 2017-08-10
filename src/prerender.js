@@ -43,26 +43,25 @@ export let makeText = (() => {
 		alphaMap	: texture,
 		transparent : true
 	})
-	let scale  = 13
-	let height = h * scale
+	let height = h * params.labelScale
 	// generate mesh
 	return query => {
-		let left = 50
+		let left = .03
 		let f    = 0
 		var geometry = new Geometry()
 		// start
 		geometry.vertices.push(
-			new Vector3(left * scale,-height,0),
-			new Vector3(left * scale, height,0))
+			new Vector3(left,-height,0),
+			new Vector3(left, height,0))
 		// generate other sequences
 		let make = letter => {
 			let w = letter.width
 			let l = letter.left  / cv.width
 			let r = w / cv.width + l
-			left += w
+			left += w * params.labelScale
 			geometry.vertices.push(
-				new Vector3(left * scale,-height,0), 
-				new Vector3(left * scale, height,0))
+				new Vector3(left,-height,0), 
+				new Vector3(left, height,0))
 			geometry.faces.push(
 				new Face3(f,f+2,f+1), 
 				new Face3(f+2,f+3,f+1))
@@ -99,6 +98,6 @@ export let makeCircle = (() => {
 		transparent : true
 	})
 	return () => new Mesh(
-		new PlaneBufferGeometry(600, 600), 
+		new PlaneBufferGeometry(params.dotScale, params.dotScale),
 		material.clone())
 })()

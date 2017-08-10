@@ -3,7 +3,7 @@ import {levels, params} from './config'
 
 // go through time
 export let buildRange = (min, max, depth, check, helix, point) => {
-	for (let t = min; t <= max; t += levels[depth].time.size)
+	for (let t = min; t < max; t += levels[depth].time.size)
 		buildSlice(t, depth, check, helix, point, t == min)
 }
 

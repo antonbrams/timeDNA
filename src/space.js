@@ -2,6 +2,9 @@
 import {levels, world} from './config'
 import {Vector3, Matrix4} from 'three'
 
+// set arch to year
+levels[0].space.a = levels[0].spread
+
 // calculate helix
 export let buildHelix = level => {
 	// levels
@@ -13,12 +16,12 @@ export let buildHelix = level => {
 		// gain
 		let prev = levels[level - 1]
 		let gain = 2 * Math.PI / prev.time.size
-		me.space.arch = gain * me.radius
+		me.space.a = gain * me.radius
 		// rotation
 		let r = new Matrix4()
 			.makeRotationAxis(prev.space.z, - gain * (me.time.unix - prev.time.flat))
 		let g = new Matrix4()
-			.makeRotationAxis(prev.space.y, - Math.atan(prev.space.arch / me.space.arch))
+			.makeRotationAxis(prev.space.y, - Math.atan(prev.space.a / me.space.a))
 		// gimble vectors
 		me.space.y = prev.space.z.clone()
 			.applyMatrix4(g)
