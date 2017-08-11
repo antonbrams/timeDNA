@@ -36,15 +36,18 @@ export let build = me => {
 	// helpers
 	// TODO: https://threejs.org/docs/#api/geometries/PlaneBufferGeometry
 	let helpers = [
-		new ArrowHelper(space.y, space.p, me.scale * 0.3, 'red'),
-		new ArrowHelper(space.z, space.p, me.scale * 0.3, 'green')]
+		new ArrowHelper(space.y, space.p, me.radius * 0.2, 'red'),
+		new ArrowHelper(space.z, space.p, me.radius * 0.2, 'green')]
 	// external interface
 	return {
 		group, space, time,
-		lookAt (position, local) {
+		lookAt (position, up) {
 			// look to camera
 			circle.lookAt(position)
-			// rotate to camera
+			// create local gimble
+			let local = {y:up.clone(), z:position.clone().sub(space.p.clone())}
+			local.x = new Vector3().crossVectors(local.y, local.z)
+			// find rotation matrix
 			let m = helix.rotationsMatrix(local, space).elements
 			let a = Math.atan2(m[9], m[10])
 			text.matrix = new Matrix4()
@@ -52,7 +55,7 @@ export let build = me => {
 				.multiply(new Matrix4().makeRotationX(-a)))
 		},
 		get isVisible () {
-			return opacity.cur > 0
+			return opacity.cur > 0.0001
 		},
 		setColors (min, now, max, depth) {
 			// set color
@@ -75,7 +78,7 @@ export let build = me => {
 			circle.material.opacity =
 			text.material.opacity   = opacity.cur
 			// hide
-			group.visible = opacity.cur > 0
+			group.visible = opacity.cur > 0.0001
 		},
 		debug (state) {
 			helpers.forEach(helper => 

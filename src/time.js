@@ -64,8 +64,7 @@ export let range = (now, depth, length) => {
 		length = Math.floor(length)
 	}
 	let r = length * levels[depth].ms / 2
-	let p = Math.max(depth-1, 0)
-	let f = flat(new Date(now), p).getTime()
+	let f = flat(new Date(now), Math.max(depth-1, 0)).getTime()
 	return {
 		min : flat(new Date(f - r), depth).getTime(), 
 		max : flat(new Date(f + r), depth).getTime()}

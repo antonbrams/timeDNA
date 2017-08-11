@@ -76,16 +76,14 @@ loop(() => {
 		camera.up.set(up.x, up.y, up.z)
 	}
 	// calculate camera local axis
-	let local = {}; for (let i in world)
-		local[i] = world[i].clone()
-			.applyQuaternion(camera.quaternion)
+	let up = new Vector3(0,1,0).applyQuaternion(camera.quaternion)
 	// bildboard
 	levels.forEach(level => {
 		for (let i in level.points) {
 			let p = level.points[i]
 			p.animateOpacity()
 			if (p.isVisible) {
-				p.lookAt(camera.position.clone(), local)
+				p.lookAt(camera.position.clone(), up)
 				p.debug(config.debug)
 			}
 		}

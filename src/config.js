@@ -3,7 +3,7 @@ import {Vector3, Color} from 'three'
 
 export default {
 	// params
-	range      : 200,
+	range      : 300,
 	camSpeed   : .05,
 	fadeSpeed  : .1,
 	labelScale : .0007,
@@ -71,7 +71,7 @@ levels.forEach(level => {
 			y : world.y, // up vector
 			z : world.z, // forward vector
 			p : new Vector3(0,0,0), // position
-			a : 0, // arch in radians
+			a : levels[0].spread, // arch in radians
 		},
 		points : {} // points
 	}

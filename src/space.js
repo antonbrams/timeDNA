@@ -2,9 +2,6 @@
 import {levels, world} from './config'
 import {Vector3, Matrix4} from 'three'
 
-// set arch to year
-levels[0].space.a = levels[0].spread
-
 // calculate helix
 export let buildHelix = level => {
 	// levels
