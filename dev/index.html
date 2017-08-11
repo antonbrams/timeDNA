@@ -1,0 +1,35 @@
+
+<!DOCTYPE html>
+<html manifest="./cache.manifest">
+	<head>
+		<title>My App</title>
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+		<meta name="viewport" content="user-scalable=no, initial-scale=1, minimum-scale=1, maximum-scale=1">
+	</head>
+	<style>
+	
+		body {
+			background-color: rgb(45, 180, 250);
+		}
+	
+	</style>
+	<body>
+		
+		<!-- DOM STUFF HERE -->
+		
+	</body>
+	<script>
+	
+		var storage = window.localStorage
+		var restore = storage.getItem('ip')
+		if (!restore) {
+			storage.setItem('ip', '192.168.1.4')
+		} else {
+			var pt = prompt('What is the server ip?', restore)
+			storage.setItem('ip', pt)
+			window.location = `http://${ip}`
+		}
+	
+	</script>
+</html>
