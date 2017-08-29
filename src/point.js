@@ -40,7 +40,7 @@ export let build = me => {
 		new ArrowHelper(space.z, space.p, me.radius * 0.2, 'green')]
 	// external interface
 	return {
-		group, space, time,
+		group, space, time, opacity : 1,
 		lookAt (position, up) {
 			// look to camera
 			circle.lookAt(position)
@@ -71,6 +71,7 @@ export let build = me => {
 				opacity.set = 1 - Math.pow(x * 2 - 1, 2)
 			} else 
 				opacity.set = 0
+			this.opacity = opacity.set
 		},
 		animateOpacity () {
 			opacity.cur += (opacity.set - opacity.cur) * config.fadeSpeed
@@ -78,7 +79,7 @@ export let build = me => {
 			circle.material.opacity =
 			text.material.opacity   = opacity.cur
 			// hide
-			group.visible = opacity.cur > 0.0001
+			group.visible = opacity.cur > .0001
 		},
 		debug (state) {
 			helpers.forEach(helper => 

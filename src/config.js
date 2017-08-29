@@ -73,7 +73,9 @@ levels.forEach(level => {
 			p : new Vector3(0,0,0), // position
 			a : levels[0].spread, // arch in radians
 		},
-		points : {} // points
+		points : {}, // points
+		// draw graph
+		graph : null
 	}
 	for (let i in dynamic) 
 		if (!level[i]) level[i] = dynamic[i]

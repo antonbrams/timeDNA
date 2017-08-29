@@ -26,7 +26,8 @@ export let doDepth = (pick, depth, points) => {
 	// iterate through all points
 	levels.forEach((level, l) => {
 		let flat = time.flat(pick, l).getTime()
-		for (let i in level.points) {
+		// sort by time and iterate
+		Object.keys(level.points).sort().forEach(i => {
 			let p = level.points[i]
 			// remove if outside of range
 			if (lastTime != now && (i < toDelete.min || toDelete.max < i)) {
@@ -39,7 +40,7 @@ export let doDepth = (pick, depth, points) => {
 				// interface
 				points && points(p, l == pDepth && p.time.unix == pTime)
 			}
-		}
+		})
 	})
 	lastTime = now
 }
