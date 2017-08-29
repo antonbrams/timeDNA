@@ -1,13 +1,13 @@
 
 import '../graphic/style.sass'
 import {controls, scene, camera, loop} from './render'
-import {Vector3,
-Geometry, Line, LineBasicMaterial, Color} from 'three'
+import {Vector3} from 'three'
 import config, {levels, world} from './config'
 import * as point from './point'
 import * as time from './time'
 import * as space from './space'
 import * as travel from './travel'
+import * as graph from './graph'
 
 // TODO: https://gamedevelopment.tutsplus.com/tutorials/quick-tip-how-to-render-to-a-texture-in-threejs--cms-25686
 
@@ -17,32 +17,11 @@ let camCtrl = {
 	up		 : new Vector3()
 }
 
-let line
-
-
 let calc = (pick, depth) => {
-	levels[depth].graph = new Line(
-		new Geometry({
-			dynamic : true,
-			verticesNeedUpdate : true
-		}), 
-		new LineBasicMaterial({
-			transparent  : true,
-			opacity      : 0,
-			vertexColors : true,
-			linewidth    : 2
-		}))
+	graph.init(depth)
 	travel.doDepth(pick, depth, (p, current) => {
-		if (p.time.depth == depth && p.opacity > 0) {
-			let value  = Math.random()
-			let height = levels[depth].radius / 4
-			levels[depth].graph.geometry.vertices.push(p.space.p.clone()
-				.add(p.space.x.clone()
-				.multiplyScalar(height * value)))
-			levels[depth].graph.geometry.colors.push(config.now.clone()
-				.lerp(new Color(`rgb(255, 100, 200)`), value)
-				.lerp(config.bg, 1-p.opacity))
-		}
+		if (p.time.depth == depth && p.opacity > 0)
+			graph.makeDataPoint(p.space, p.opacity, levels[depth])
 		if (current) {
 			camCtrl.up       = p.space.y.clone()
 			camCtrl.target   = p.space.p.clone()
@@ -56,7 +35,7 @@ let calc = (pick, depth) => {
 }
 
 let pick  = new Date()
-let depth = 3 // goes from year(0) -> seconds(5)
+let depth = 1 // goes from year(0) -> seconds(5)
 
 if (1)
 	calc(pick, depth)
@@ -106,9 +85,7 @@ loop(() => {
 	levels.forEach((level, i) => {
 		if (level.graph) {
 			let value = i == depth? 1: 0
-			let m = level.graph.material
-			m.opacity += (value - m.opacity) * .05
-			scene[m.opacity > .0001?'add':'remove'](level.graph)
+			graph.updateOpacity(level, value)
 		}
 		for (let i in level.points) {
 			let p = level.points[i]
