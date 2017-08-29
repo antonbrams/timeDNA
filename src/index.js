@@ -18,10 +18,10 @@ let camCtrl = {
 }
 
 let calc = (pick, depth) => {
-	graph.init(depth)
+	let addPointToGraph = graph.make(levels[depth], pick.getTime())
 	travel.doDepth(pick, depth, (p, current) => {
 		if (p.time.depth == depth && p.opacity > 0)
-			graph.makeDataPoint(p.space, p.opacity, levels[depth])
+			addPointToGraph(p.value, p.space, p.opacity)
 		if (current) {
 			camCtrl.up       = p.space.y.clone()
 			camCtrl.target   = p.space.p.clone()
@@ -83,10 +83,7 @@ loop(() => {
 	let up = new Vector3(0,1,0).applyQuaternion(camera.quaternion)
 	// bildboard
 	levels.forEach((level, i) => {
-		if (level.graph) {
-			let value = i == depth? 1: 0
-			graph.updateOpacity(level, value)
-		}
+		graph.updateOpacity(level, depth)
 		for (let i in level.points) {
 			let p = level.points[i]
 			p.animateOpacity()

@@ -8,6 +8,7 @@ import {
 import config, {levels} from './config'
 import * as helix from './space'
 import * as PreRender from './prerender.js'
+import {getDataOn} from './model'
 
 export let build = me => {
 	// make gimble
@@ -40,7 +41,9 @@ export let build = me => {
 		new ArrowHelper(space.z, space.p, me.radius * 0.2, 'green')]
 	// external interface
 	return {
-		group, space, time, opacity : 1,
+		group, space, time, 
+		opacity : 1,
+		value : getDataOn(time.unix),
 		lookAt (position, up) {
 			// look to camera
 			circle.lookAt(position)
