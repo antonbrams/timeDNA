@@ -8,6 +8,7 @@ import * as time from './time'
 import * as space from './space'
 import * as travel from './travel'
 import * as graph from './graph'
+import './hover'
 
 // TODO: https://gamedevelopment.tutsplus.com/tutorials/quick-tip-how-to-render-to-a-texture-in-threejs--cms-25686
 
@@ -21,7 +22,7 @@ let calc = (pick, depth) => {
 	let addPointToGraph = graph.make(levels[depth], pick.getTime())
 	travel.doDepth(pick, depth, (p, current) => {
 		if (p.time.depth == depth && p.opacity > 0)
-			addPointToGraph(p.value, p.space, p.opacity)
+			addPointToGraph(p.value, p.valueToCoords(), p.opacity)
 		if (current) {
 			camCtrl.up       = p.space.y.clone()
 			camCtrl.target   = p.space.p.clone()
@@ -35,26 +36,25 @@ let calc = (pick, depth) => {
 }
 
 let pick  = new Date()
-let depth = 1 // goes from year(0) -> seconds(5)
 
 if (1)
-	calc(pick, depth)
+	calc(pick, config.depth)
 else if (0)
 	setInterval(() => {
 		pick  = new Date()
-		calc(pick, depth)
+		calc(pick, config.depth)
 	}, 1000)
 
 document.addEventListener('keypress', e => {
 	if (e.key == 'w' || e.key == 's') {
-		depth +=
-			e.key == 'w' && depth < levels.length - 1? 1: 
-			e.key == 's' && depth > 0? -1: 0
-		calc(pick, depth)
+		config.depth +=
+			e.key == 'w' && config.depth < levels.length - 1? 1: 
+			e.key == 's' && config.depth > 0? -1: 0
+		calc(pick, config.depth)
 	} else if (e.key == 'a' || e.key == 'd') {
 		let next = time[e.key == 'd'? 'next':'prev']
-			(pick, Math.max(depth-1, 0))
-		calc(next, depth)
+			(pick, Math.max(config.depth-1, 0))
+		calc(next, config.depth)
 		pick = next
 	}
 	e.preventDefault()
@@ -73,17 +73,17 @@ loop(() => {
 				.sub(camera.position)
 				.multiplyScalar(speed))
 		camera.position.set(pos.x, pos.y, pos.z)
-		let up = camera.up.clone()
-			.add(camCtrl.up.clone()
-				.sub(camera.up)
-				.multiplyScalar(speed))
-		camera.up.set(up.x, up.y, up.z)
+		// let up = camera.up.clone()
+		// 	.add(camCtrl.up.clone()
+		// 		.sub(camera.up)
+		// 		.multiplyScalar(speed))
+		// camera.up.set(up.x, up.y, up.z)
 	}
 	// calculate camera local axis
 	let up = new Vector3(0,1,0).applyQuaternion(camera.quaternion)
 	// bildboard
 	levels.forEach((level, i) => {
-		graph.updateOpacity(level, depth)
+		graph.updateOpacity(level, config.depth)
 		for (let i in level.points) {
 			let p = level.points[i]
 			p.animateOpacity()

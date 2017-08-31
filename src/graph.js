@@ -15,17 +15,15 @@ export let make = (level, unix) => {
 			new LineBasicMaterial({
 				transparent  : true,
 				vertexColors : true,
-				linewidth    : 1
+				linewidth    : 1.4
 			}))
 		scene.add(level.graph)
 	}
 	level.graph.material.opacity = oldTime != unix
 	oldTime = unix
-	return (value, space, opacity) => {
+	return (value, coords, opacity) => {
 		let height = level.radius / 4
-		level.graph.geometry.vertices.push(space.p.clone()
-			.add(space.x.clone()
-			.multiplyScalar(height * value)))
+		level.graph.geometry.vertices.push(coords)
 		level.graph.geometry.colors.push(config.now.clone()
 			.lerp(new Color(`rgb(255, 100, 200)`), value)
 			.lerp(config.bg, 1-opacity))

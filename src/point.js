@@ -2,7 +2,8 @@
 
 import {
 	ArrowHelper, Matrix4, Vector3, 
-	Color, Group, Math as math
+	Color, Group, Math as math, 
+	Mesh, PlaneBufferGeometry
 } from 'three'
 
 import config, {levels} from './config'
@@ -34,6 +35,15 @@ export let build = me => {
 	// label
 	let text = PreRender.makeText(format(me, time.depth))
 	group.add(text)
+	// hitArea
+	let hitArea = new Mesh(new PlaneBufferGeometry(.4, .1))
+	let m = new Matrix4()
+		.makeRotationX(-Math.PI/2)
+		.premultiply(new Matrix4().makeTranslation(.1, 0, 0))
+		.premultiply(space.m)
+	hitArea.visible = false
+	hitArea.applyMatrix(m)
+	group.add(hitArea)
 	// helpers
 	// TODO: https://threejs.org/docs/#api/geometries/PlaneBufferGeometry
 	let helpers = [
@@ -41,9 +51,14 @@ export let build = me => {
 		new ArrowHelper(space.z, space.p, me.radius * 0.2, 'green')]
 	// external interface
 	return {
-		group, space, time, 
+		group, space, time,
 		opacity : 1,
-		value : getDataOn(time.unix),
+		value   : getDataOn(time.unix),
+		valueToCoords () {
+			return space.p.clone()
+				.add(space.x.clone()
+					.multiplyScalar(me.radius / 4 * this.value))
+		},
 		lookAt (position, up) {
 			// look to camera
 			circle.lookAt(position)

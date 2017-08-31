@@ -8,6 +8,7 @@ export default {
 	fadeSpeed  : .1,
 	labelScale : .0007,
 	dotScale   : .02,
+	depth	   : 1, // goes from year(0) -> seconds(5)
 	// colors
 	bg    : new Color(`hsl(200,  10%,   7%)`),
 	base  : new Color(`hsl(200,   5%,  40%)`),
