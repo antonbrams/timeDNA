@@ -9,7 +9,7 @@ import {
 import config, {levels} from './config'
 import * as helix from './space'
 import * as PreRender from './prerender.js'
-import {getDataOn} from './model'
+import * as model from './model'
 
 export let build = me => {
 	// make gimble
@@ -42,8 +42,11 @@ export let build = me => {
 		.premultiply(new Matrix4().makeTranslation(.1, 0, 0))
 		.premultiply(space.m)
 	hitArea.visible = false
+	hitArea.material.side = 2
 	hitArea.applyMatrix(m)
 	group.add(hitArea)
+	// request data
+	model.getDataOn(time.unix, time.depth)
 	// helpers
 	// TODO: https://threejs.org/docs/#api/geometries/PlaneBufferGeometry
 	let helpers = [
@@ -53,7 +56,6 @@ export let build = me => {
 	return {
 		group, space, time,
 		opacity : 1,
-		value   : getDataOn(time.unix),
 		valueToCoords () {
 			return space.p.clone()
 				.add(space.x.clone()
@@ -98,6 +100,9 @@ export let build = me => {
 			text.material.opacity   = opacity.cur
 			// hide
 			group.visible = opacity.cur > .0001
+		},
+		setValue (value) {
+			console.log(value)
 		},
 		debug (state) {
 			helpers.forEach(helper => 

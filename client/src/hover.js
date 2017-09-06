@@ -4,6 +4,7 @@ import {
 	SphereGeometry, MeshBasicMaterial, Mesh, 
 	Points, PointsMaterial, Geometry
 } from 'three'
+
 import {camera, scene} from './render'
 import config, {levels} from './config'
 
@@ -84,6 +85,7 @@ let onHover = p => {
 let onUnhover = p => {
 	scene.remove(sphere)
 	hideLabel()
+	sphere = null
 }
 
 // ray caster and debouncer
@@ -111,7 +113,7 @@ document.body.addEventListener('mousemove', e => {
 })
 
 document.body.addEventListener('mousedown', e => {
-	if (hovered) {
+	if (hovered && !sphere) {
 		onHover(hovered)
 		hovered = null
 	}

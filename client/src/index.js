@@ -35,7 +35,7 @@ let calc = (pick, depth) => {
 	})
 }
 
-let pick  = new Date()
+let pick = new Date(2010,6,1,0,0,0,0)
 
 if (1)
 	calc(pick, config.depth)

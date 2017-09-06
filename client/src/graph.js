@@ -3,6 +3,8 @@ import {Geometry, Line, LineBasicMaterial, Color} from 'three'
 import config, {levels} from './config'
 import {scene} from './render'
 
+// TODO: http://jsfiddle.net/8mrH7/266/
+
 let oldTime = null
 export let make = (level, unix) => {
 	if (1) {//oldTime != unix || !level.graph) {
