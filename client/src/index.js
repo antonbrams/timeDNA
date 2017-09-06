@@ -21,8 +21,7 @@ let camCtrl = {
 let calc = (pick, depth) => {
 	let addPointToGraph = graph.make(levels[depth], pick.getTime())
 	travel.doDepth(pick, depth, (p, current) => {
-		if (p.time.depth == depth && p.opacity > 0)
-			addPointToGraph(p.value, p.valueToCoords(), p.opacity)
+		if (p.time.depth == depth && p.opacity > 0) addPointToGraph(p)
 		if (current) {
 			camCtrl.up       = p.space.y.clone()
 			camCtrl.target   = p.space.p.clone()

@@ -14,6 +14,7 @@ export default {
 	base  : new Color(`hsl(200,   5%,  40%)`),
 	start : new Color(`hsl(200,   5%, 100%)`),
 	now   : new Color(`hsl(200, 100%,  60%)`),
+	high  : new Color(`hsl(335, 100%,  50%)`),
 	// debug
 	debug : 0
 }

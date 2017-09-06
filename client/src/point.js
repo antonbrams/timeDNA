@@ -46,7 +46,7 @@ export let build = me => {
 	hitArea.applyMatrix(m)
 	group.add(hitArea)
 	// request data
-	model.getDataOn(time.unix, time.depth)
+	model.requestData(time.unix, time.depth)
 	// helpers
 	// TODO: https://threejs.org/docs/#api/geometries/PlaneBufferGeometry
 	let helpers = [
@@ -54,7 +54,8 @@ export let build = me => {
 		new ArrowHelper(space.z, space.p, me.radius * 0.2, 'green')]
 	// external interface
 	return {
-		group, space, time,
+		group, space, time, 
+		value 	: 0,
 		opacity : 1,
 		valueToCoords () {
 			return space.p.clone()
@@ -102,7 +103,8 @@ export let build = me => {
 			group.visible = opacity.cur > .0001
 		},
 		setValue (value) {
-			console.log(value)
+			this.value = value
+			this.onLoad && this.onLoad()
 		},
 		debug (state) {
 			helpers.forEach(helper => 

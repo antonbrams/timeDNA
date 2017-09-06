@@ -2,7 +2,8 @@
 import {
 	Vector3, Raycaster, 
 	SphereGeometry, MeshBasicMaterial, Mesh, 
-	Points, PointsMaterial, Geometry
+	Points, PointsMaterial, Geometry,
+	Math as math
 } from 'three'
 
 import {camera, scene} from './render'
@@ -28,7 +29,8 @@ ct.textBaseline   = `top`
 let showLabel = (number, coord) => {
 	cv.classList.add('visible')
 	ct.clearRect(0,0, cv.width, cv.height)
-	let value = Math.round(number * 100) / 100
+	let value = Math.round(math
+		.mapLinear(number, 0, 1, -10, 40) * 100) / 100
 	// draw label
 	ct.save()
 		ct.translate(coord.x + 100, coord.y - 200)

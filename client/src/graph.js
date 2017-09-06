@@ -11,8 +11,7 @@ export let make = (level, unix) => {
 		scene.remove(level.graph)
 		level.graph = new Line(
 			new Geometry({
-				dynamic : true,
-				verticesNeedUpdate : true
+				dynamic : true
 			}),
 			new LineBasicMaterial({
 				transparent  : true,
@@ -23,12 +22,22 @@ export let make = (level, unix) => {
 	}
 	level.graph.material.opacity = oldTime != unix
 	oldTime = unix
-	return (value, coords, opacity) => {
-		let height = level.radius / 4
-		level.graph.geometry.vertices.push(coords)
-		level.graph.geometry.colors.push(config.now.clone()
-			.lerp(new Color(`rgb(255, 100, 200)`), value)
-			.lerp(config.bg, 1-opacity))
+	let i = 0
+	return p => {
+		let color = value => config.now.clone()
+			.lerp(config.high, value)
+			.lerp(config.bg, 1 - p.opacity) 
+		level.graph.geometry.vertices[i] = p.valueToCoords()
+		level.graph.geometry.colors[i] = color(p.value)
+		// db update
+		p.onLoad = (i => () => {
+			// position
+			level.graph.geometry.vertices[i] = p.valueToCoords()
+			level.graph.geometry.verticesNeedUpdate = true
+			// color
+			level.graph.geometry.colors[i] = color(p.value)
+			level.graph.geometry.colorsNeedUpdate = true
+		})(i++)
 	}
 }
 

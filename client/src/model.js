@@ -1,5 +1,4 @@
 
-// import {Math as math} from 'three'
 import {levels} from './config'
 import io from 'socket.io-client'
 
@@ -15,13 +14,11 @@ socket.on('response', data => {
 let timeout = null
 let request = []
 
-export let getDataOn = (unix, depth) => {
-	//math.mapLinear(unix, 0, 10000000000000, 0, 100);
+export let requestData = (unix, depth) => {
 	request.push([depth, unix])
 	if (timeout) clearTimeout(timeout)
 	timeout = setTimeout(() => {
 		socket.emit('request', request)
 		request = []
 	}, 100)
-	return Math.random()
 }
