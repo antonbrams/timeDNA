@@ -60,7 +60,7 @@ export let build = me => {
 		valueToCoords () {
 			return space.p.clone()
 				.add(space.x.clone()
-					.multiplyScalar(me.radius / 4 * this.value))
+					.multiplyScalar(me.radius * (this.value - .2)))
 		},
 		lookAt (position, up) {
 			// look to camera

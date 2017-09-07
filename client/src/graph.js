@@ -26,7 +26,7 @@ export let make = (level, unix) => {
 	return p => {
 		let color = value => config.now.clone()
 			.lerp(config.high, value)
-			.lerp(config.bg, 1 - p.opacity) 
+			.lerp(config.bg, value == 0? 1: 1 - p.opacity)
 		level.graph.geometry.vertices[i] = p.valueToCoords()
 		level.graph.geometry.colors[i] = color(p.value)
 		// db update

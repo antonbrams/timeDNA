@@ -30,7 +30,7 @@ let showLabel = (number, coord) => {
 	cv.classList.add('visible')
 	ct.clearRect(0,0, cv.width, cv.height)
 	let value = Math.round(math
-		.mapLinear(number, 0, 1, -10, 40) * 100) / 100
+		.mapLinear(number - .2, 0, 1, 0, 40) * 100) / 100
 	// draw label
 	ct.save()
 		ct.translate(coord.x + 100, coord.y - 200)

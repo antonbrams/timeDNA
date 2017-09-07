@@ -4,15 +4,16 @@ const Noise  = require('simplex-noise')
 const config = require('./config.js')
 
 let beg	 = new Date(2010,0,1,0,0,0,0).getTime()
-let end	 = new Date(2010,0,2,0,0,0,0).getTime()
+let end	 = new Date(2011,0,1,0,0,0,0).getTime()
 
 let simplex  = new Noise(() => 0)
 let generateNoise = unix => {
-	let divideBy = n => .5 + .5 * simplex.noise2D(unix / n, 0)
-	let second   = divideBy(1000)
-	let hour     = divideBy(3600000)
-	let month    = divideBy(2628000000)
-	return second * hour * month
+	let second = .9 + .2 * simplex.noise2D(unix / 1000, 0)
+	let minute = .9 + .2 * simplex.noise2D(unix / 60000, 0)
+	let hour   = .9 + .2 * simplex.noise2D(unix / 3600000, 0)
+	let day    = .8 + .4 * simplex.noise2D(unix / 86400000, 0)
+	let month  = .5 + .5 * simplex.noise2D(unix / 2628000000, 0)
+	return second * minute * hour * day * month
 }
 
 // check noise function
@@ -26,7 +27,7 @@ if (0) {
 }
 
 // generate file
-if (0) {
+if (1) {
 	let prev = 0
 	let unit = -1
 	let path = ''

@@ -8,7 +8,8 @@ socket.on('connect', () => console.log('[Socket.io] connected...'))
 socket.on('response', data => {
 	for (let depth in data)
 		for (let unix in data[depth])
-			levels[depth].points[unix].setValue(data[depth][unix])
+			levels[depth].points[unix]
+				.setValue(data[depth][unix])
 })
 
 let timeout = null

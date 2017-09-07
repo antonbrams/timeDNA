@@ -9,7 +9,6 @@ let iterateLines = (path, doLine, onEnd) => {
 	let number = 0
 	var regExp = new RegExp(/\n/)
 	let stream = fs.createReadStream(path)
-	stream.on('error', error => true)
 	stream.on('data', chunk => {
 	    lines += chunk.toString()
 		while (regExp.test(lines)) {
@@ -22,6 +21,9 @@ let iterateLines = (path, doLine, onEnd) => {
 				break
 			}
 		}
+	})
+	stream.on('error', err => {
+		onEnd && onEnd(line, number)
 	})
 	stream.on('close', () => {
 		onEnd && onEnd(line, number)
@@ -70,20 +72,22 @@ module.exports = test = (request, result) => {
 	let query     = makeJobs(request)
 	let integral  = {}
 	let queryKeys = Object.keys(query)
+	let m = 0
 	for (let i = 0; i < queryKeys.length; i ++) {
-		let async = function (end) {
-			let n = 0
-			let jobs = query[queryKeys[i]].sort()
-			// fs.writeFile('./out.txt', JSON.stringify(jobs), console.log)
-			iterateLines(config.genPath(queryKeys[i]), line => {
-				let data = line.split(' ')
-					data[0] = parseInt(data[0])
-				if (data[0] == jobs[n]) {
-					integral[data[0]] = parseFloat(data[1])
-					if (++ n > jobs.length - 1) return true
-				}
-			}, () => {if (end) result(mean(integral, request))})
-		} (i == queryKeys.length - 1)
+		let n = 0
+		let jobs = query[queryKeys[i]].sort()
+		// fs.writeFile('./out.txt', JSON.stringify(jobs), console.log)
+		iterateLines(config.genPath(queryKeys[i]), line => {
+			let data = line.split(' ')
+				data[0] = parseInt(data[0])
+			if (data[0] == jobs[n]) {
+				integral[data[0]] = parseFloat(data[1])
+				if (n ++ == jobs.length - 1) return true
+			}
+		}, () => {
+			if (m ++ == queryKeys.length - 1) 
+				result(mean(integral, request))
+		})
 	}
 }
 
