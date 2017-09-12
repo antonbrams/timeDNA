@@ -1,7 +1,7 @@
 
-const fs     = require('fs')
-const Noise  = require('simplex-noise')
-const config = require('./config.js')
+import fs     from 'fs'
+import Noise  from 'simplex-noise'
+import config from './config'
 
 let beg	 = new Date(2010,0,1,0,0,0,0).getTime()
 let end	 = new Date(2011,0,1,0,0,0,0).getTime()

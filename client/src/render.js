@@ -17,7 +17,7 @@ import Stats from 'stats-js'
 let stats = new Stats()
 stats.domElement.style.position = 'absolute'
 stats.domElement.style.left 	= '10px'
-stats.domElement.style.top 		= '10px'
+stats.domElement.style.bottom   = '10px'
 
 // vr Mode
 let vrMode = window.location.hash == '#vr'

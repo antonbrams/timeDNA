@@ -1,16 +1,16 @@
 {
-  "name": "timedna",
+  "name": "TimeDNA",
   "version": "1.0.0",
   "description": "my private project for visu",
   "main": "index.js",
   "scripts": {
-    "client": "cross-env NODE_ENV=client.dev webpack-dev-server --config ./dev/webpack.js",
-    "server": "cross-env NODE_ENV=server.dev webpack --config ./dev/webpack.js",
-    "build": "cross-env NODE_ENV=build.prod webpack --config ./dev/webpack.js --progress"
+    "start": "node ./dev/. $1"
   },
   "author": "antonkluev",
   "license": "ISC",
   "dependencies": {
+    "require-main-filename": "^1.0.1",
+    "simplex-noise": "^2.3.0",
     "socket.io": "^2.0.3",
     "stats-js": "^1.0.0-alpha1",
     "three": "^0.86.0",
@@ -22,12 +22,17 @@
     "babel-preset-es2015-native-modules": "^6.9.4",
     "coffee-loader": "^0.7.3",
     "coffee-script": "^1.12.7",
+    "colors": "^1.1.2",
     "cross-env": "^3.2.4",
     "css-loader": "^0.25.0",
+    "electron": "^1.7.6",
+    "electron-packager": "^9.0.1",
+    "electron-reload": "^1.2.1",
     "file-loader": "^0.10.1",
     "ip": "^1.1.5",
     "loader-utils": "^1.1.0",
     "node-sass": "^3.13.1",
+    "nodemon": "^1.12.0",
     "sass-loader": "^4.1.1",
     "style-loader": "^0.13.2",
     "url-loader": "^0.5.9",

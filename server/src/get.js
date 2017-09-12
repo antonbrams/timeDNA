@@ -1,7 +1,7 @@
 
-const colors = require('colors')
-const fs     = require('fs')
-const config = require('./config.js')
+// const colors = require('colors')
+import fs     from 'fs'
+import config from './config'
 
 let iterateLines = (path, doLine, onEnd) => {
 	let lines  = ''
@@ -68,7 +68,7 @@ let mean = (integral, request) => {
 	return out
 }
 
-module.exports = test = (request, result) => {
+module.exports = (request, result) => {
 	let query     = makeJobs(request)
 	let integral  = {}
 	let queryKeys = Object.keys(query)
@@ -91,15 +91,15 @@ module.exports = test = (request, result) => {
 	}
 }
 
-if (0) {
-	console.time('time')
-	test([
-		[5, 1262318410000],
-		[5, 1262318416000],
-		[5, 1262318417000],
-		[5, 1262318418000]
-	], val => {
-		console.log(val)
-		console.timeEnd('time')
-	})
-}
+// if (0) {
+// 	console.time('time')
+// 	test([
+// 		[5, 1262318410000],
+// 		[5, 1262318416000],
+// 		[5, 1262318417000],
+// 		[5, 1262318418000]
+// 	], val => {
+// 		console.log(val)
+// 		console.timeEnd('time')
+// 	})
+// }
